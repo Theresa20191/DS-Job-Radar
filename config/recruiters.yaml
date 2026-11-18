@@ -1,0 +1,35 @@
+# Known staffing/recruitment agencies and generic name patterns used to
+# classify employer_clarity. This is a name-pattern heuristic only — it
+# never tries to identify who the actual underlying employer is, only
+# whether the POSTING company itself looks like a staffing/recruitment
+# agency rather than a direct employer. Edit freely as you spot more.
+
+known_recruiter_names:
+  - People Profilers
+  - Evolution Recruitment Solutions
+  - Allegis Group
+  - Michael Page
+  - Robert Walters
+  - Randstad
+  - ManpowerGroup
+  - Manpower
+  - Kelly Services
+  - Adecco
+  - PERSOLKELLY
+  - Persol Kelly
+  - Hays
+  - JAC Recruitment
+  - RGF
+  - Recruit Express
+  - Charterhouse
+
+generic_keywords:
+  - recruit
+  - staffing
+  - talent acquisition
+  - talent solutions
+  - manpower
+  - headhunt
+  - search and selection
+  - search & selection
+  - hr solutions

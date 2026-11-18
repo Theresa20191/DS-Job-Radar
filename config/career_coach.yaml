@@ -1,0 +1,311 @@
+# Career Coach vocabulary and thresholds (career_coach_v1.2) — system config.
+#
+# Independent of config/tracks.yaml, scoring weights, PTF and the Transition
+# Lens (M1). Which tracks YOU target, your experience, target levels,
+# floors and work authorization live in config/profile.yaml `career_coach:`.
+# This file only says what evidence makes a job show an activity, a domain
+# or a track, and the fixed thresholds the rules use.
+#
+# Regexes are case-insensitive. An activity pattern holds only when its verb
+# and its object match in the SAME work sentence (S-2); requirements and
+# preferred text never create an activity (S-3, M16).
+#
+# Track condition keys (all keys in one condition must hold):
+#   activity_present   at least one of these activities has evidence
+#   activity_absent    none of these activities has evidence
+#   central_work_in    central work is one of these activities
+#   domain             {terms, placements}: a domain term at one of the placements
+#   title_regex        regex on the job title
+#   work_sentence_regex  regex that must match one work sentence
+#   role_family_in     role_family values (enrichment)
+#   activity_evidence  {activities, matching?, not_matching?}: ONE evidence
+#                      sentence of these activities matches / does not match
+#   any_of / all_of    nested conditions
+# Track order below is the RT-4 tie-break order.
+#
+# Gate 2 tuning record (lexical only; no business semantics changed). Each
+# fix is backed by corpus sentences from the 2026-09-20 replay and a
+# regression case in tests/test_career_coach_engine.py.
+#   T-1  Verbs match real verb inflections only (was `verb\w*`, which made
+#        nouns verbs: "delivery", "deliverables", "development",
+#        "deployment", "leaders", "management", "advancements").
+#   T-2  (engine) Verb and object must be distinct, non-overlapping spans —
+#        "delivery" was counting as both verb and object.
+#   T-3  PROJECT_DELIVERY object "stakeholders" removed: it matched
+#        collaboration ("Partner with business and technical stakeholders").
+#   T-4  (engine) A lower-case line right after an unterminated line in the
+#        same section is one wrapped sentence ("Design, develop, and deploy" /
+#        "agentic AI systems").
+#   T-5  Nominalised verbs "development / design / training / building /
+#        deployment ... of X" (MOD-3, DEP-3), existing objects only ("the
+#        design, development, and deployment of AI/ML solutions").
+#   T-6  "About the team" is not boilerplate: in this corpus it holds the
+#        role's own work (company "about us" stays excluded).
+#   T-7  "scale" in compounds is not a verb ("large-scale", "TB-scale", "at scale").
+#   T-8  "planning" as a noun is not a verb ("strategic planning").
+#   T-9  "advanced" as an adjective is not a verb ("advanced techniques").
+#   T-10 AML does not match "Applied Machine Learning (AML)" / "Data AML".
+#   T-11 Risk matches risk as an analytic subject (risk model/score/control/
+#        analytics/features/defense...; credit/market/operational... risk),
+#        not the governance word ("Legal, Risk, Compliance", "risk
+#        management processes", "Risk, Issue & Governance Management").
+#   T-12 GENAI_APPS object "agentic" added: "Develop agentic AI systems" and
+#        "Design, develop, and deploy agentic AI systems" stated GenAI work and
+#        matched nothing ("agents?" does not match "agentic").
+
+version: career_coach_v1.2
+
+thresholds:
+  heavy_gap_min: 5              # E-R1: required gaps that make resume effort HEAVY
+  k_stretch_years: 2            # EX-4: shortfall <= K is WITHIN_STRETCH (O-2)
+  live_check_window_days: 7     # LC-2: W, how current a live check must be (O-11)
+
+# SN-4: direction label for a seniority MATERIAL_GAP only — never priority.
+level_rungs:
+  Intern: 0
+  Junior: 1
+  Senior: 3
+  Lead: 4
+  Staff: 4
+  Manager: 4
+  Principal: 5
+
+# ED-1: education_required names -> the same ranks as profile education_level_rank.
+education_ranks:
+  Diploma: 1
+  Bachelor: 2
+  Master: 3
+  PhD: 4
+
+work_text:
+  responsibility_headings:
+    - '\bresponsibilit'
+    - '\bwhat (?:you will|you''ll) do\b'
+    - '\b(?:your|the) role\b'
+    - '\bkey (?:duties|accountabilities)\b'
+    - '\bjob (?:scope|duties)\b'
+    - '\bduties\b'
+  boilerplate_headings:
+    - '\babout (?:us|the company|our company)\b'
+    - '\bwho we are\b'
+    - '\bbenefits\b'
+    - '\bwhat we offer\b'
+    - '\bperks\b'
+    - '\bwhy (?:join|work)\b'
+    - '\bhow to apply\b'
+    - '\bequal (?:opportunit|employment)'
+    - '\bdiversity\b'
+
+# S-4 tie-break when two activities have the same evidence count.
+activity_precedence: [MODELLING, EXPERIMENTATION, OPTIMISATION, DEPLOYMENT, RESEARCH, GENAI_APPS,
+                      MLOPS_PLATFORM, ANALYTICS, DASHBOARDS_MIS, PROJECT_DELIVERY]
+
+activities:
+  MODELLING:
+    patterns:
+      - id: MOD-1
+        verbs: '\b(?:build(?:s|ing)?|built|develop(?:s|ed|ing)?|design(?:s|ed|ing)?|train(?:s|ed|ing)?|creat(?:e|es|ed|ing)|prototyp(?:e|es|ed|ing)|implement(?:s|ed|ing)?|improv(?:e|es|ed|ing)|enhanc(?:e|es|ed|ing)|refin(?:e|es|ed|ing)|calibrat(?:e|es|ed|ing)|validat(?:e|es|ed|ing)|fine-tun(?:e|es|ed|ing))\b'
+        objects: '\bmodel(?:s|ling|ing)?\b|\bclassifiers?\b|\bscorecards?\b|\bpredictive\b|\bneural networks?\b|\bmachine learning (?:models?|solutions?|algorithms?)\b|\b(?:ml|ai) models?\b'
+      - id: MOD-3
+        verbs: '\b(?:design|development|training|building|fine-tuning)(?:,?\s+(?:and\s+)?(?:design|development|training|building|fine-tuning|evaluation|deployment))*,?\s+of\b'
+        objects: '\bmodel(?:s|ling|ing)?\b|\bclassifiers?\b|\bscorecards?\b|\bpredictive\b|\bneural networks?\b|\bmachine learning (?:models?|solutions?|algorithms?)\b|\b(?:ml|ai) models?\b'
+      - id: MOD-2
+        verbs: '\b(?:appl(?:y|ies|ied|ying)|us(?:e|es|ed|ing)|leverag(?:e|es|ed|ing)|utili[sz](?:e|es|ed|ing))\b'
+        objects: '\b(?:machine learning|statistical modell?ing|predictive modell?ing|deep learning) (?:to|for)\b'
+    exclusions:
+      - '\bwork(?:ing)? (?:closely )?with (?:the )?(?:data scientists?|ml engineers?|modell?ers?)\b'
+      - '\bsupport(?:ing)? (?:the )?(?:data scien\w+|modell?ing) teams?\b'
+
+  DEPLOYMENT:
+    patterns:
+      - id: DEP-1
+        verbs: '\b(?:deploy(?:s|ed|ing)?|productioni[sz](?:e|es|ed|ing)|operationali[sz](?:e|es|ed|ing)|serv(?:e|es|ed|ing)|ship(?:s|ped|ping)?|integrat(?:e|es|ed|ing)|(?<!-)(?<!at )scal(?:e|es|ed|ing))\b'
+        objects: '\bmodels?\b|\bml\b|\bmachine learning\b|\bsolutions?\b|\bservices?\b|\bpipelines?\b'
+      - id: DEP-3
+        verbs: '\b(?:deployment|productioni[sz]ation|operationali[sz]ation|integration)(?:,?\s+(?:and\s+)?(?:design|development|training|building|evaluation|deployment|monitoring))*,?\s+of\b'
+        objects: '\bmodels?\b|\bml\b|\bmachine learning\b|\bsolutions?\b|\bservices?\b|\bpipelines?\b'
+      - id: DEP-2
+        verbs: '\b(?:bring(?:s|ing)?|brought|put(?:s|ting)?|mov(?:e|es|ed|ing)|tak(?:e|es|ing)|took|taken)\b'
+        objects: '\binto production\b|\bto production\b'
+
+  EXPERIMENTATION:
+    patterns:
+      - id: EXP-1
+        verbs: '\b(?:design(?:s|ed|ing)?|run(?:s|ning)?|ran|conduct(?:s|ed|ing)?|analy[sz](?:e|es|ed|ing)|evaluat(?:e|es|ed|ing)|set(?:s|ting)? up|lead(?:s|ing)?|led|measur(?:e|es|ed|ing))\b'
+        objects: '\bexperiment\w*|\ba/?b tests?\b|\ba/?b testing\b|\bcausal\b|\buplift\b|\bquasi-experiment\w*|\bcontrol groups?\b|\brandomi[sz]ed\b'
+
+  OPTIMISATION:
+    patterns:
+      - id: OPT-1
+        verbs: '\b(?:build(?:s|ing)?|built|develop(?:s|ed|ing)?|design(?:s|ed|ing)?|formulat(?:e|es|ed|ing)|solv(?:e|es|ed|ing)|appl(?:y|ies|ied|ying)|implement(?:s|ed|ing)?)\b'
+        objects: '\boptimi[sz]ation (?:models?|solutions?|algorithms?|problems?)\b|\boperations research\b|\b(?:linear|integer|mixed[- ]integer) programming\b|\bscheduling\b|\brouting\b|\ballocation\b|\bsimulation\b'
+
+  ANALYTICS:
+    patterns:
+      - id: ANA-1
+        verbs: '\b(?:analy[sz](?:e|es|ed|ing)|investigat(?:e|es|ed|ing)|explor(?:e|es|ed|ing)|identif(?:y|ies|ied|ying)|deriv(?:e|es|ed|ing)|generat(?:e|es|ed|ing)|uncover(?:s|ed|ing)?|perform(?:s|ed|ing)?|conduct(?:s|ed|ing)?)\b'
+        objects: '\binsights?\b|\btrends?\b|\bpatterns?\b|\b(?:data|exploratory|ad[- ]hoc|deep[- ]dive) analys[ie]s\b|\broot causes?\b|\bdrivers?\b|\bbehaviou?rs?\b'
+
+  RESEARCH:
+    patterns:
+      - id: RES-1
+        verbs: '\b(?:research(?:es|ed|ing)?|publish(?:es|ed|ing)?|advanc(?:e|es|ing)|conduct(?:s|ed|ing)?|pursu(?:e|es|ed|ing)|explor(?:e|es|ed|ing))\b'
+        objects: '\bresearch\b|\bstate[- ]of[- ]the[- ]art\b|\bnovel (?:methods?|algorithms?|approaches?)\b|\bpapers?\b|\bpublications?\b|\bconferences?\b'
+
+  MLOPS_PLATFORM:
+    patterns:
+      - id: MLP-1
+        verbs: '\b(?:build(?:s|ing)?|built|design(?:s|ed|ing)?|develop(?:s|ed|ing)?|maintain(?:s|ed|ing)?|operat(?:e|es|ed|ing)|manag(?:e|es|ed|ing)|(?<!-)(?<!at )scal(?:e|es|ed|ing)|own(?:s|ed|ing)?)\b'
+        objects: '\b(?:ml|machine learning|ai|model) (?:platforms?|infrastructure)\b|\bmlops\b|\bfeature stores?\b|\bmodel registr\w*|\bci/cd\b|\bmodel monitoring\b|\bserving (?:infrastructure|platforms?)\b'
+
+  GENAI_APPS:
+    patterns:
+      - id: GEN-1
+        verbs: '\b(?:build(?:s|ing)?|built|develop(?:s|ed|ing)?|design(?:s|ed|ing)?|deploy(?:s|ed|ing)?|integrat(?:e|es|ed|ing)|implement(?:s|ed|ing)?|creat(?:e|es|ed|ing)|prototyp(?:e|es|ed|ing))\b'
+        objects: '\bllms?\b|\blarge language models?\b|\bgenerative ai\b|\bgen ?ai\b|\brag\b|\bretrieval[- ]augmented\b|\b(?:ai )?agents?\b|\bagentic\b|\bchatbots?\b|\bprompt\w*'
+
+  DASHBOARDS_MIS:
+    patterns:
+      - id: DSH-1
+        verbs: '\b(?:build(?:s|ing)?|built|develop(?:s|ed|ing)?|creat(?:e|es|ed|ing)|maintain(?:s|ed|ing)?|prepar(?:e|es|ed|ing)|produc(?:e|es|ed|ing)|automat(?:e|es|ed|ing)|design(?:s|ed|ing)?)\b'
+        objects: '\bdashboards?\b|\breports?\b|\breporting\b|\bmis\b|\bvisuali[sz]ations?\b|\bkpis?\b'
+
+  PROJECT_DELIVERY:
+    patterns:
+      - id: PRJ-1
+        verbs: '\b(?:manag(?:e|es|ed|ing)|lead(?:s|ing)?|led|coordinat(?:e|es|ed|ing)|driv(?:e|es|ing)|drove|deliver(?:s|ed|ing)?|overs(?:ee|ees|eeing|aw)|plan(?:s|ned)?)\b'
+        objects: '\bprojects?\b|\btimelines?\b|\broadmaps?\b|\bdelivery\b|\bprogrammes?\b|\bprograms?\b'
+
+# D-1: named domain terms. Every domain in profile `domain` must appear here.
+domains:
+  Fraud: ['\bfraud\w*', '\banti[- ]fraud\b', '\bscams?\b']
+  AML: ['(?<!\()(?<!data )\baml\b(?!\))', '\banti[- ]money[- ]laundering\b', '\bmoney[- ]laundering\b']
+  Financial Crime: ['\bfinancial crimes?\b', '\bfincrime\b', '\bsanctions\b', '\bkyc\b', '\bknow your customer\b']
+  Risk: ['\brisk (?:models?|modell?ing|scor(?:e|es|ing)|controls?|analytics|features?|defen[cs]e|ratings?|segmentation|decision\w*|strateg\w*|appetite|exposures?)\b',
+         '\b(?:credit|market|operational|fraud|financial|default|liquidity|counterparty|investment) risks?\b', '\brisk data scien']
+  Credit Risk: ['\bcredit risk\b', '\bprobability of default\b', '\bdefault (?:risk|prediction)\b']
+  Credit: ['\bcredit (?:scoring|scores?|decision\w*|underwriting|limits?|models?)\b', '\bunderwriting\b', '\blending\b', '\bloans?\b']
+  Banking: ['\bbank(?:s|ing)?\b']
+  Fintech: ['\bfintech\b']
+  Insurance: ['\binsurance\b', '\binsurtech\b', '\bactuarial\b']
+  Payments: ['\bpayments?\b']
+  Healthcare: ['\bhealth ?care\b', '\bclinical\b', '\bpatients?\b', '\bmedical\b']
+  E-commerce: ['\be-?commerce\b', '\bmarketplaces?\b']
+  Manufacturing: ['\bmanufactur\w*', '\bsemiconductors?\b', '\bwafers?\b']
+  Energy: ['\benergy\b', '\boil and gas\b', '\bpetroleum\b']
+  Aerospace: ['\baerospace\b', '\baircraft\b', '\baviation\b', '\bairlines?\b']
+  Logistics: ['\blogistics\b', '\bsupply chains?\b', '\bfreight\b', '\bshipping\b']
+  Media: ['\bmedia\b', '\bnewsrooms?\b', '\bpublishing\b']
+  Telecommunications: ['\btelecom\w*', '\btelco\b']
+  Public Sector: ['\bpublic sector\b', '\bgovernment\b']
+  Travel: ['\btravel\b', '\bhospitality\b']
+  Retail: ['\bretail\b', '\bfmcg\b', '\bconsumer goods\b']
+
+# CV rules. Every track must be declared in exactly one tier in the profile
+# (CV-0). specificity drives RT-2; defining non-target tracks drive CV-2.
+tracks:
+  FRAUD_FINCRIME_DS:
+    specificity: DOMAIN
+    match:
+      activity_present: [MODELLING]
+      domain: {terms: [Fraud, AML, Financial Crime], placements: [OWN_WORK, DEFINING]}
+  RISK_DS:
+    specificity: DOMAIN
+    match:
+      activity_present: [MODELLING]
+      domain: {terms: [Risk, Credit Risk, Credit], placements: [OWN_WORK, DEFINING]}
+  CREDIT_RISK_DS:
+    specificity: DOMAIN
+    match:
+      activity_present: [MODELLING]
+      domain: {terms: [Credit Risk, Credit], placements: [OWN_WORK, DEFINING]}
+  PRODUCT_DS:
+    specificity: FUNCTION
+    match:
+      all_of:
+        - any_of:
+            - title_regex: '\bproduct\b'
+            - work_sentence_regex: '\bproduct (?:analytics|decisions?|metrics|growth|strategy|adoption|usage)\b|\buser (?:behaviou?r|engagement|retention|growth|funnels?)\b'
+        - any_of:
+            - activity_present: [EXPERIMENTATION]
+            - activity_present: [OPTIMISATION]
+            - activity_evidence:
+                activities: [MODELLING]
+                not_matching: '\brecommend\w*|\bpersonali[sz]\w*|\branking\b|\bretrieval\b|\bsearch\b'
+  DECISION_SCIENTIST:
+    specificity: FUNCTION
+    match:
+      any_of:
+        - central_work_in: [OPTIMISATION]
+        - title_regex: '\bdecision scien'
+  EXPERIMENTATION_CAUSAL:
+    specificity: FUNCTION
+    match:
+      activity_present: [EXPERIMENTATION]
+  PRICING_FORECASTING:
+    specificity: FUNCTION
+    match:
+      activity_evidence:
+        activities: [MODELLING, OPTIMISATION]
+        matching: '\bpric(?:e|es|ing)\b|\belasticit\w*|\bforecast\w*|\bdemand (?:models?|planning)\b|\brevenue management\b'
+  APPLIED_DS:
+    specificity: GENERAL
+    match:
+      central_work_in: [MODELLING]        # central, never mere presence: not a fallback track
+  APPLIED_SCIENTIST:
+    specificity: GENERAL
+    match:
+      any_of:
+        - central_work_in: [RESEARCH]
+        - title_regex: '\bapplied scientist'
+  ML_SCIENTIST:
+    specificity: GENERAL
+    match:
+      any_of:
+        - central_work_in: [RESEARCH]
+        - title_regex: '\b(?:ml|machine learning|research) scientist'
+  ML_ENGINEER:
+    specificity: GENERAL
+    match:
+      any_of:
+        - central_work_in: [DEPLOYMENT]
+        - role_family_in: [ML Engineer]
+          activity_present: [DEPLOYMENT]
+  MLOPS_PLATFORM:
+    defining: true
+    match:
+      central_work_in: [MLOPS_PLATFORM]
+  MIS_REPORTING:
+    defining: true
+    match:
+      central_work_in: [DASHBOARDS_MIS]
+  ANALYTICS_HEAVY:
+    defining: true
+    match:
+      central_work_in: [ANALYTICS]
+      activity_absent: [MODELLING, EXPERIMENTATION, OPTIMISATION]
+  DATA_ANALYST:
+    match:
+      role_family_in: [Data Analyst]
+  BI_ANALYST:
+    match:
+      role_family_in: [BI Analyst]
+
+# RT-5 resume positionings (O-1). Every targeted (non-non_target) track maps
+# to exactly one positioning; non-target tracks map to none.
+positionings:
+  FRAUD_FINCRIME:
+    label: Fraud / Financial Crime DS
+    tracks: [FRAUD_FINCRIME_DS]
+  RISK:
+    label: Risk DS
+    tracks: [RISK_DS, CREDIT_RISK_DS]
+  EXPERIMENTATION_PRICING:
+    label: Experimentation / Pricing
+    tracks: [EXPERIMENTATION_CAUSAL, PRICING_FORECASTING, PRODUCT_DS, DECISION_SCIENTIST]
+  ML_ORIENTED:
+    label: ML-oriented DS
+    tracks: [APPLIED_SCIENTIST, ML_SCIENTIST, ML_ENGINEER]
+  APPLIED_DS:
+    label: Applied DS
+    tracks: [APPLIED_DS]

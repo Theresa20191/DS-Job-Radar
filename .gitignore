@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------- Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# ---------------------------------------------------------------- virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ---------------------------------------------------------------- local secrets
+.env
+.env.*
+!.env.example
+secrets/
+
+# ---------------------------------------------------------------- macOS metadata
+.DS_Store
+__MACOSX/
+._*
+
+# ---------------------------------------------------------------- generated runtime data under data/
+# Everything the pipeline writes at run time is ignored. The data/ directory itself
+# is NOT ignored, and every .gitkeep placeholder under it stays tracked, including in
+# nested folders (the "!.../**/" lines re-include sub-folders so Git can see them).
+data/raw/**
+!data/raw/**/
+!data/raw/**/.gitkeep
+data/processed/**
+!data/processed/**/
+!data/processed/**/.gitkeep
+data/output/**
+!data/output/**/
+!data/output/**/.gitkeep
+data/archive/**
+!data/archive/**/
+!data/archive/**/.gitkeep
+data/live_check_evidence/**
+!data/live_check_evidence/**/
+!data/live_check_evidence/**/.gitkeep
+data/snapshots/**
+!data/snapshots/**/
+!data/snapshots/**/.gitkeep
+data/contacts.csv
+data/applications.jsonl
+data/live_checks.jsonl
+data/.pipeline.lock
+data/**/*.tmp

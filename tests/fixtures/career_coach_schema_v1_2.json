@@ -1,0 +1,2835 @@
+{
+ "coach_version": "career_coach_v1.2",
+ "schemas": {
+  "CareerCoachDecision": {
+   "$defs": {
+    "ApplicationInvestment": {
+     "additionalProperties": false,
+     "properties": {
+      "justified": {
+       "enum": [
+        "FULL",
+        "STANDARD",
+        "LIGHT_TOUCH",
+        "VERIFY_ONLY",
+        "NONE"
+       ],
+       "title": "Justified",
+       "type": "string"
+      },
+      "required": {
+       "anyOf": [
+        {
+         "enum": [
+          "LOW",
+          "MODERATE",
+          "HIGH"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Required"
+      },
+      "fit": {
+       "enum": [
+        "WITHIN_BUDGET",
+        "EXCEEDS_BUDGET",
+        "NOT_APPLICABLE"
+       ],
+       "title": "Fit",
+       "type": "string"
+      }
+     },
+     "required": [
+      "justified",
+      "required",
+      "fit"
+     ],
+     "title": "ApplicationInvestment",
+     "type": "object"
+    },
+    "ApplicationViability": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "BLOCKED",
+        "VIABLE",
+        "UNKNOWN"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "factors": {
+       "items": {
+        "$ref": "#/$defs/ViabilityFactor"
+       },
+       "title": "Factors",
+       "type": "array"
+      }
+     },
+     "required": [
+      "state"
+     ],
+     "title": "ApplicationViability",
+     "type": "object"
+    },
+    "CandidateAlignment": {
+     "additionalProperties": false,
+     "properties": {
+      "technical": {
+       "$ref": "#/$defs/TechnicalAlignment"
+      },
+      "domain": {
+       "$ref": "#/$defs/DomainAlignment"
+      },
+      "experience": {
+       "$ref": "#/$defs/ExperienceAlignment"
+      },
+      "seniority": {
+       "$ref": "#/$defs/SeniorityAlignment"
+      },
+      "education": {
+       "$ref": "#/$defs/EducationAlignment"
+      }
+     },
+     "required": [
+      "technical",
+      "domain",
+      "experience",
+      "seniority",
+      "education"
+     ],
+     "title": "CandidateAlignment",
+     "type": "object"
+    },
+    "CareerValue": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "PRIMARY",
+        "SECONDARY",
+        "ADJACENT",
+        "NON_TARGET",
+        "OFF_VOCABULARY",
+        "UNKNOWN"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "deciding_rule": {
+       "enum": [
+        "CV-1",
+        "CV-2",
+        "CV-3",
+        "CV-4",
+        "CV-5",
+        "CV-6",
+        "CV-7"
+       ],
+       "title": "Deciding Rule",
+       "type": "string"
+      },
+      "deciding_track": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Deciding Track"
+      },
+      "matched_tracks": {
+       "items": {
+        "$ref": "#/$defs/MatchedTrack"
+       },
+       "title": "Matched Tracks",
+       "type": "array"
+      },
+      "explanation": {
+       "title": "Explanation",
+       "type": "string"
+      }
+     },
+     "required": [
+      "state",
+      "deciding_rule",
+      "deciding_track",
+      "explanation"
+     ],
+     "title": "CareerValue",
+     "type": "object"
+    },
+    "DomainAlignment": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "MATCH",
+        "NO_OVERLAP",
+        "NO_DOMAIN_STATED"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "terms": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Terms",
+       "type": "array"
+      }
+     },
+     "required": [
+      "state"
+     ],
+     "title": "DomainAlignment",
+     "type": "object"
+    },
+    "EducationAlignment": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "MEETS",
+        "BELOW",
+        "NOT_STATED"
+       ],
+       "title": "State",
+       "type": "string"
+      }
+     },
+     "required": [
+      "state"
+     ],
+     "title": "EducationAlignment",
+     "type": "object"
+    },
+    "Evidence": {
+     "additionalProperties": false,
+     "properties": {
+      "id": {
+       "title": "Id",
+       "type": "string"
+      },
+      "kind": {
+       "title": "Kind",
+       "type": "string"
+      },
+      "text": {
+       "title": "Text",
+       "type": "string"
+      },
+      "source_field": {
+       "title": "Source Field",
+       "type": "string"
+      },
+      "section": {
+       "title": "Section",
+       "type": "string"
+      },
+      "pattern_id": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Pattern Id"
+      }
+     },
+     "required": [
+      "id",
+      "kind",
+      "text",
+      "source_field",
+      "section"
+     ],
+     "title": "Evidence",
+     "type": "object"
+    },
+    "EvidenceGap": {
+     "additionalProperties": false,
+     "properties": {
+      "kind": {
+       "enum": [
+        "TECHNIQUE",
+        "TOOL",
+        "DOMAIN"
+       ],
+       "title": "Kind",
+       "type": "string"
+      },
+      "name": {
+       "title": "Name",
+       "type": "string"
+      },
+      "text": {
+       "title": "Text",
+       "type": "string"
+      }
+     },
+     "required": [
+      "kind",
+      "name",
+      "text"
+     ],
+     "title": "EvidenceGap",
+     "type": "object"
+    },
+    "ExperienceAlignment": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "MEETS",
+        "WITHIN_STRETCH",
+        "MATERIAL_GAP",
+        "NOT_STATED_BY_JOB",
+        "UNASSESSED"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "job_required_years": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Job Required Years"
+      },
+      "job_evidence_id": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Job Evidence Id"
+      },
+      "candidate_measure": {
+       "enum": [
+        "relevant_ds_years",
+        "relevant_ml_years"
+       ],
+       "title": "Candidate Measure",
+       "type": "string"
+      },
+      "candidate_value": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "const": "UNKNOWN",
+         "type": "string"
+        }
+       ],
+       "title": "Candidate Value"
+      }
+     },
+     "required": [
+      "state",
+      "job_required_years",
+      "job_evidence_id",
+      "candidate_measure",
+      "candidate_value"
+     ],
+     "title": "ExperienceAlignment",
+     "type": "object"
+    },
+    "FieldProvenance": {
+     "additionalProperties": false,
+     "properties": {
+      "rules": {
+       "items": {
+        "type": "string"
+       },
+       "minItems": 1,
+       "title": "Rules",
+       "type": "array"
+      },
+      "inputs": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Inputs",
+       "type": "array"
+      },
+      "evidence": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Evidence",
+       "type": "array"
+      }
+     },
+     "required": [
+      "rules"
+     ],
+     "title": "FieldProvenance",
+     "type": "object"
+    },
+    "InputHashes": {
+     "additionalProperties": false,
+     "properties": {
+      "raw_corpus": {
+       "title": "Raw Corpus",
+       "type": "string"
+      },
+      "config": {
+       "title": "Config",
+       "type": "string"
+      },
+      "profile": {
+       "title": "Profile",
+       "type": "string"
+      },
+      "eligible_live_checks": {
+       "title": "Eligible Live Checks",
+       "type": "string"
+      }
+     },
+     "required": [
+      "raw_corpus",
+      "config",
+      "profile",
+      "eligible_live_checks"
+     ],
+     "title": "InputHashes",
+     "type": "object"
+    },
+    "JobRef": {
+     "additionalProperties": false,
+     "properties": {
+      "job_id": {
+       "title": "Job Id",
+       "type": "string"
+      },
+      "company": {
+       "title": "Company",
+       "type": "string"
+      },
+      "job_title": {
+       "title": "Job Title",
+       "type": "string"
+      },
+      "country": {
+       "title": "Country",
+       "type": "string"
+      },
+      "canonical_url": {
+       "title": "Canonical Url",
+       "type": "string"
+      },
+      "posted_date": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Posted Date"
+      }
+     },
+     "required": [
+      "job_id",
+      "company",
+      "job_title",
+      "country",
+      "canonical_url",
+      "posted_date"
+     ],
+     "title": "JobRef",
+     "type": "object"
+    },
+    "MatchedTrack": {
+     "additionalProperties": false,
+     "properties": {
+      "track": {
+       "title": "Track",
+       "type": "string"
+      },
+      "declared_tier": {
+       "enum": [
+        "primary",
+        "secondary",
+        "adjacent_ok",
+        "non_target"
+       ],
+       "title": "Declared Tier",
+       "type": "string"
+      },
+      "specificity": {
+       "anyOf": [
+        {
+         "enum": [
+          "DOMAIN",
+          "FUNCTION",
+          "GENERAL"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Specificity"
+      },
+      "defining": {
+       "title": "Defining",
+       "type": "boolean"
+      },
+      "clause": {
+       "title": "Clause",
+       "type": "string"
+      },
+      "evidence_ids": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Evidence Ids",
+       "type": "array"
+      },
+      "evidence_count": {
+       "minimum": 0,
+       "title": "Evidence Count",
+       "type": "integer"
+      }
+     },
+     "required": [
+      "track",
+      "declared_tier",
+      "specificity",
+      "defining",
+      "clause",
+      "evidence_count"
+     ],
+     "title": "MatchedTrack",
+     "type": "object"
+    },
+    "PracticalConstraint": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "CLEAR",
+        "OPEN",
+        "MATERIAL"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "components": {
+       "additionalProperties": {
+        "type": "string"
+       },
+       "title": "Components",
+       "type": "object"
+      }
+     },
+     "required": [
+      "state"
+     ],
+     "title": "PracticalConstraint",
+     "type": "object"
+    },
+    "Readiness": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "NO_GAP",
+        "STRETCH",
+        "LEVEL_CONFLICT",
+        "MATERIAL_GAP",
+        "UNASSESSED"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "deciding_rule": {
+       "enum": [
+        "R-1",
+        "R-2",
+        "R-3",
+        "R-4",
+        "R-5",
+        "R-6",
+        "R-7"
+       ],
+       "title": "Deciding Rule",
+       "type": "string"
+      },
+      "components": {
+       "additionalProperties": {
+        "type": "string"
+       },
+       "title": "Components",
+       "type": "object"
+      }
+     },
+     "required": [
+      "state",
+      "deciding_rule"
+     ],
+     "title": "Readiness",
+     "type": "object"
+    },
+    "Reason": {
+     "additionalProperties": false,
+     "properties": {
+      "rule_id": {
+       "title": "Rule Id",
+       "type": "string"
+      },
+      "text": {
+       "title": "Text",
+       "type": "string"
+      },
+      "evidence_ids": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Evidence Ids",
+       "type": "array"
+      }
+     },
+     "required": [
+      "rule_id",
+      "text"
+     ],
+     "title": "Reason",
+     "type": "object"
+    },
+    "ResumeTrack": {
+     "additionalProperties": false,
+     "properties": {
+      "positioning": {
+       "title": "Positioning",
+       "type": "string"
+      },
+      "source_track": {
+       "title": "Source Track",
+       "type": "string"
+      },
+      "declared_tier": {
+       "enum": [
+        "primary",
+        "secondary",
+        "adjacent_ok"
+       ],
+       "title": "Declared Tier",
+       "type": "string"
+      },
+      "runner_up": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Runner Up"
+      },
+      "deciding_key": {
+       "enum": [
+        "RT-1",
+        "RT-2",
+        "RT-3",
+        "RT-4"
+       ],
+       "title": "Deciding Key",
+       "type": "string"
+      }
+     },
+     "required": [
+      "positioning",
+      "source_track",
+      "declared_tier",
+      "runner_up",
+      "deciding_key"
+     ],
+     "title": "ResumeTrack",
+     "type": "object"
+    },
+    "RunInfo": {
+     "additionalProperties": false,
+     "properties": {
+      "as_of_date": {
+       "format": "date",
+       "title": "As Of Date",
+       "type": "string"
+      },
+      "run_kind": {
+       "enum": [
+        "HISTORICAL_REPLAY",
+        "OPERATIONAL"
+       ],
+       "title": "Run Kind",
+       "type": "string"
+      },
+      "coach_version": {
+       "const": "career_coach_v1.2",
+       "title": "Coach Version",
+       "type": "string"
+      },
+      "input_hashes": {
+       "$ref": "#/$defs/InputHashes"
+      }
+     },
+     "required": [
+      "as_of_date",
+      "run_kind",
+      "coach_version",
+      "input_hashes"
+     ],
+     "title": "RunInfo",
+     "type": "object"
+    },
+    "SeniorityAlignment": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "ALIGNED",
+        "STRETCH",
+        "MATERIAL_GAP",
+        "UNKNOWN"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "job_level": {
+       "enum": [
+        "Intern",
+        "Junior",
+        "Principal",
+        "Lead",
+        "Staff",
+        "Manager",
+        "Senior",
+        "Mid/Unspecified"
+       ],
+       "title": "Job Level",
+       "type": "string"
+      },
+      "candidate_aligned_levels": {
+       "items": {
+        "enum": [
+         "Intern",
+         "Junior",
+         "Principal",
+         "Lead",
+         "Staff",
+         "Manager",
+         "Senior"
+        ],
+        "type": "string"
+       },
+       "title": "Candidate Aligned Levels",
+       "type": "array"
+      },
+      "candidate_stretch_levels": {
+       "items": {
+        "enum": [
+         "Intern",
+         "Junior",
+         "Principal",
+         "Lead",
+         "Staff",
+         "Manager",
+         "Senior"
+        ],
+        "type": "string"
+       },
+       "title": "Candidate Stretch Levels",
+       "type": "array"
+      },
+      "direction": {
+       "anyOf": [
+        {
+         "enum": [
+          "ABOVE",
+          "BELOW",
+          "OTHER"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Direction"
+      }
+     },
+     "required": [
+      "state",
+      "job_level",
+      "direction"
+     ],
+     "title": "SeniorityAlignment",
+     "type": "object"
+    },
+    "TechnicalAlignment": {
+     "additionalProperties": false,
+     "properties": {
+      "state": {
+       "enum": [
+        "FULL",
+        "PARTIAL",
+        "NONE_EVIDENCED",
+        "NO_REQUIREMENTS_STATED"
+       ],
+       "title": "State",
+       "type": "string"
+      },
+      "required": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Required",
+       "type": "array"
+      },
+      "evidenced": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Evidenced",
+       "type": "array"
+      },
+      "gaps": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Gaps",
+       "type": "array"
+      }
+     },
+     "required": [
+      "state"
+     ],
+     "title": "TechnicalAlignment",
+     "type": "object"
+    },
+    "VerificationItem": {
+     "additionalProperties": false,
+     "properties": {
+      "code": {
+       "enum": [
+        "VQ-ELIGIBILITY",
+        "VQ-COMPENSATION",
+        "VQ-POSTING_OPEN",
+        "VQ-APPLICATION_CHANNEL",
+        "VQ-JOB_SCOPE",
+        "VQ-ROLE_LEVEL"
+       ],
+       "title": "Code",
+       "type": "string"
+      },
+      "question": {
+       "title": "Question",
+       "type": "string"
+      },
+      "source": {
+       "const": "JOB",
+       "title": "Source",
+       "type": "string"
+      },
+      "if_resolved_favourably": {
+       "title": "If Resolved Favourably",
+       "type": "string"
+      },
+      "if_resolved_unfavourably": {
+       "title": "If Resolved Unfavourably",
+       "type": "string"
+      }
+     },
+     "required": [
+      "code",
+      "question",
+      "source",
+      "if_resolved_favourably",
+      "if_resolved_unfavourably"
+     ],
+     "title": "VerificationItem",
+     "type": "object"
+    },
+    "ViabilityFactor": {
+     "additionalProperties": false,
+     "properties": {
+      "rule_id": {
+       "title": "Rule Id",
+       "type": "string"
+      },
+      "factor": {
+       "title": "Factor",
+       "type": "string"
+      },
+      "result": {
+       "enum": [
+        "PASS",
+        "FAIL",
+        "UNKNOWN"
+       ],
+       "title": "Result",
+       "type": "string"
+      },
+      "detail": {
+       "title": "Detail",
+       "type": "string"
+      },
+      "live_record_id": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Live Record Id"
+      }
+     },
+     "required": [
+      "rule_id",
+      "factor",
+      "result",
+      "detail"
+     ],
+     "title": "ViabilityFactor",
+     "type": "object"
+    },
+    "WorkSubstance": {
+     "additionalProperties": false,
+     "properties": {
+      "status": {
+       "enum": [
+        "ESTABLISHED",
+        "PARTIAL",
+        "UNKNOWN"
+       ],
+       "title": "Status",
+       "type": "string"
+      },
+      "basis": {
+       "enum": [
+        "RESPONSIBILITY_SECTION",
+        "DESCRIPTION_SENTENCES",
+        "NONE"
+       ],
+       "title": "Basis",
+       "type": "string"
+      },
+      "central_work": {
+       "anyOf": [
+        {
+         "enum": [
+          "MODELLING",
+          "DEPLOYMENT",
+          "EXPERIMENTATION",
+          "OPTIMISATION",
+          "ANALYTICS",
+          "RESEARCH",
+          "MLOPS_PLATFORM",
+          "GENAI_APPS",
+          "DASHBOARDS_MIS",
+          "PROJECT_DELIVERY"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Central Work"
+      },
+      "activities": {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "propertyNames": {
+        "enum": [
+         "MODELLING",
+         "DEPLOYMENT",
+         "EXPERIMENTATION",
+         "OPTIMISATION",
+         "ANALYTICS",
+         "RESEARCH",
+         "MLOPS_PLATFORM",
+         "GENAI_APPS",
+         "DASHBOARDS_MIS",
+         "PROJECT_DELIVERY"
+        ]
+       },
+       "title": "Activities",
+       "type": "object"
+      },
+      "title_family": {
+       "title": "Title Family",
+       "type": "string"
+      },
+      "evidence_ids": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Evidence Ids",
+       "type": "array"
+      }
+     },
+     "required": [
+      "status",
+      "basis",
+      "central_work",
+      "title_family"
+     ],
+     "title": "WorkSubstance",
+     "type": "object"
+    }
+   },
+   "additionalProperties": false,
+   "properties": {
+    "job": {
+     "$ref": "#/$defs/JobRef"
+    },
+    "run": {
+     "$ref": "#/$defs/RunInfo"
+    },
+    "evaluation_scope": {
+     "enum": [
+      "FULL",
+      "HARD_FILTER_REJECTED"
+     ],
+     "title": "Evaluation Scope",
+     "type": "string"
+    },
+    "application_viability": {
+     "$ref": "#/$defs/ApplicationViability"
+    },
+    "blocking_reason": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Reason"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "work_substance": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/WorkSubstance"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "career_value": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/CareerValue"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "resume_track": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ResumeTrack"
+      },
+      {
+       "const": "NONE",
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Resume Track"
+    },
+    "candidate_alignment": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/CandidateAlignment"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "readiness": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Readiness"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "practical_constraint": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/PracticalConstraint"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "resume_effort": {
+     "anyOf": [
+      {
+       "enum": [
+        "LIGHT",
+        "TARGETED",
+        "HEAVY"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Resume Effort"
+    },
+    "research_effort": {
+     "anyOf": [
+      {
+       "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Research Effort"
+    },
+    "application_priority": {
+     "enum": [
+      "HIGH",
+      "PRIORITY",
+      "SELECTIVE",
+      "VERIFY_FIRST",
+      "DO_NOT_INVEST"
+     ],
+     "title": "Application Priority",
+     "type": "string"
+    },
+    "application_investment": {
+     "$ref": "#/$defs/ApplicationInvestment"
+    },
+    "next_action": {
+     "enum": [
+      "APPLY",
+      "TAILOR_RESUME",
+      "NETWORK",
+      "RESEARCH_EMPLOYER",
+      "HOLD",
+      "VERIFY_ELIGIBILITY",
+      "VERIFY_COMPENSATION",
+      "VERIFY_POSTING_OPEN",
+      "VERIFY_APPLICATION_CHANNEL",
+      "VERIFY_JOB_SCOPE",
+      "VERIFY_ROLE_LEVEL",
+      "DO_NOT_INVEST"
+     ],
+     "title": "Next Action",
+     "type": "string"
+    },
+    "primary_reason": {
+     "$ref": "#/$defs/Reason"
+    },
+    "verification_queue": {
+     "items": {
+      "$ref": "#/$defs/VerificationItem"
+     },
+     "title": "Verification Queue",
+     "type": "array"
+    },
+    "profile_items_affecting_job": {
+     "items": {
+      "enum": [
+       "PD-WORK_AUTH",
+       "PD-RELEVANT_YEARS",
+       "PD-TARGET_LEVELS",
+       "PD-RESUME_VARIANTS"
+      ],
+      "type": "string"
+     },
+     "title": "Profile Items Affecting Job",
+     "type": "array"
+    },
+    "uncertainty_state": {
+     "enum": [
+      "RESOLVED",
+      "JOB_SIDE_UNKNOWN",
+      "PROFILE_DECLARATION_UNKNOWN",
+      "MIXED"
+     ],
+     "title": "Uncertainty State",
+     "type": "string"
+    },
+    "key_evidence": {
+     "items": {
+      "$ref": "#/$defs/Evidence"
+     },
+     "title": "Key Evidence",
+     "type": "array"
+    },
+    "evidence_gaps": {
+     "items": {
+      "$ref": "#/$defs/EvidenceGap"
+     },
+     "title": "Evidence Gaps",
+     "type": "array"
+    },
+    "provenance": {
+     "additionalProperties": {
+      "$ref": "#/$defs/FieldProvenance"
+     },
+     "title": "Provenance",
+     "type": "object"
+    }
+   },
+   "required": [
+    "job",
+    "run",
+    "evaluation_scope",
+    "application_viability",
+    "blocking_reason",
+    "work_substance",
+    "career_value",
+    "resume_track",
+    "candidate_alignment",
+    "readiness",
+    "practical_constraint",
+    "resume_effort",
+    "research_effort",
+    "application_priority",
+    "application_investment",
+    "next_action",
+    "primary_reason",
+    "uncertainty_state",
+    "provenance"
+   ],
+   "title": "CareerCoachDecision",
+   "type": "object"
+  },
+  "CoachInput": {
+   "$defs": {
+    "HardFilterEvaluation": {
+     "additionalProperties": false,
+     "description": "The existing filter_jobs result for one job, consumed as-is (IN-1).",
+     "properties": {
+      "passed": {
+       "title": "Passed",
+       "type": "boolean"
+      },
+      "reasons": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Reasons",
+       "type": "array"
+      },
+      "hc_substantive_ds_status": {
+       "title": "Hc Substantive Ds Status",
+       "type": "string"
+      },
+      "hc_work_authorization_status": {
+       "title": "Hc Work Authorization Status",
+       "type": "string"
+      }
+     },
+     "required": [
+      "passed",
+      "hc_substantive_ds_status",
+      "hc_work_authorization_status"
+     ],
+     "title": "HardFilterEvaluation",
+     "type": "object"
+    },
+    "JobProjection": {
+     "additionalProperties": false,
+     "description": "IN-2 whitelist: the only job fields Career Coach can read. Every field\nis used by a named rule; nothing else on ProcessedJob is reachable.",
+     "properties": {
+      "job_id": {
+       "title": "Job Id",
+       "type": "string"
+      },
+      "company": {
+       "title": "Company",
+       "type": "string"
+      },
+      "company_normalized": {
+       "title": "Company Normalized",
+       "type": "string"
+      },
+      "job_title": {
+       "title": "Job Title",
+       "type": "string"
+      },
+      "country": {
+       "title": "Country",
+       "type": "string"
+      },
+      "canonical_url": {
+       "title": "Canonical Url",
+       "type": "string"
+      },
+      "posted_date": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Posted Date"
+      },
+      "source_job_ids": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Source Job Ids",
+       "type": "array"
+      },
+      "sources": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Sources",
+       "type": "array"
+      },
+      "description_raw": {
+       "title": "Description Raw",
+       "type": "string"
+      },
+      "requirements_section_raw": {
+       "title": "Requirements Section Raw",
+       "type": "string"
+      },
+      "preferred_section_raw": {
+       "title": "Preferred Section Raw",
+       "type": "string"
+      },
+      "requirements_section_status": {
+       "title": "Requirements Section Status",
+       "type": "string"
+      },
+      "section_headings": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Section Headings",
+       "type": "array"
+      },
+      "role_family": {
+       "title": "Role Family",
+       "type": "string"
+      },
+      "role_level": {
+       "enum": [
+        "Intern",
+        "Junior",
+        "Principal",
+        "Lead",
+        "Staff",
+        "Manager",
+        "Senior",
+        "Mid/Unspecified"
+       ],
+       "title": "Role Level",
+       "type": "string"
+      },
+      "skill_evidence": {
+       "items": {
+        "$ref": "#/$defs/SkillEvidence"
+       },
+       "title": "Skill Evidence",
+       "type": "array"
+      },
+      "years_experience_required": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Years Experience Required"
+      },
+      "education_required": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Education Required"
+      },
+      "city": {
+       "title": "City",
+       "type": "string"
+      },
+      "location_normalized": {
+       "title": "Location Normalized",
+       "type": "string"
+      },
+      "remote_type": {
+       "title": "Remote Type",
+       "type": "string"
+      },
+      "hybrid_days": {
+       "title": "Hybrid Days",
+       "type": "string"
+      },
+      "salary_min": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Salary Min"
+      },
+      "salary_max": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Salary Max"
+      },
+      "salary_currency": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Salary Currency"
+      },
+      "salary_period": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Salary Period"
+      },
+      "salary_unknown": {
+       "title": "Salary Unknown",
+       "type": "boolean"
+      },
+      "employer_clarity": {
+       "title": "Employer Clarity",
+       "type": "string"
+      },
+      "work_authorization_status": {
+       "title": "Work Authorization Status",
+       "type": "string"
+      },
+      "work_authorization_restriction_type": {
+       "title": "Work Authorization Restriction Type",
+       "type": "string"
+      },
+      "work_authorization_evidence": {
+       "items": {
+        "$ref": "#/$defs/WorkAuthorizationEvidence"
+       },
+       "title": "Work Authorization Evidence",
+       "type": "array"
+      }
+     },
+     "required": [
+      "job_id",
+      "company",
+      "company_normalized",
+      "job_title",
+      "country",
+      "canonical_url",
+      "posted_date",
+      "source_job_ids",
+      "sources",
+      "description_raw",
+      "requirements_section_raw",
+      "preferred_section_raw",
+      "requirements_section_status",
+      "section_headings",
+      "role_family",
+      "role_level",
+      "skill_evidence",
+      "years_experience_required",
+      "education_required",
+      "city",
+      "location_normalized",
+      "remote_type",
+      "hybrid_days",
+      "salary_min",
+      "salary_max",
+      "salary_currency",
+      "salary_period",
+      "salary_unknown",
+      "employer_clarity",
+      "work_authorization_status",
+      "work_authorization_restriction_type",
+      "work_authorization_evidence"
+     ],
+     "title": "JobProjection",
+     "type": "object"
+    },
+    "SkillEvidence": {
+     "description": "One extracted technical concept for one job, with the provenance\nneeded to explain *why* it was extracted and *why* it was given its\nimportance. Not a score — a record of evidence.\n\nimportance: \"required\" | \"preferred\" | \"unknown\".\n\"unknown\" means the posting gave no reliable signal about how much the\nconcept matters (e.g. it only appears in prose outside any recognised\nrequirements/preferred section). It is deliberately NOT the same as\n\"preferred\".",
+     "properties": {
+      "name": {
+       "title": "Name",
+       "type": "string"
+      },
+      "kind": {
+       "title": "Kind",
+       "type": "string"
+      },
+      "importance": {
+       "title": "Importance",
+       "type": "string"
+      },
+      "importance_reason": {
+       "title": "Importance Reason",
+       "type": "string"
+      },
+      "source_field": {
+       "title": "Source Field",
+       "type": "string"
+      },
+      "section_heading": {
+       "default": "",
+       "title": "Section Heading",
+       "type": "string"
+      },
+      "matched_text": {
+       "default": "",
+       "title": "Matched Text",
+       "type": "string"
+      },
+      "context": {
+       "default": "",
+       "title": "Context",
+       "type": "string"
+      },
+      "mention_count": {
+       "default": 1,
+       "title": "Mention Count",
+       "type": "integer"
+      }
+     },
+     "required": [
+      "name",
+      "kind",
+      "importance",
+      "importance_reason",
+      "source_field"
+     ],
+     "title": "SkillEvidence",
+     "type": "object"
+    },
+    "WorkAuthorizationEvidence": {
+     "description": "One piece of job-side citizenship/work-authorization language, with\nthe provenance needed to show *why* HC-2 reached its status. Not a\ndecision — a record of evidence (same role as SkillEvidence).\n\nrestriction_type:\n  FOREIGNERS_NOT_ACCEPTED    explicit \"no foreigners\"-style exclusion\n  NATIONALITY_SPECIFIC       explicit \"X citizens only\"-style exclusion\n  OTHER_EXPLICIT_RESTRICTION a stated condition that does NOT deny all\n                             foreign applicants (work permit required,\n                             no sponsorship, SC/PR only, \"local candidates\n                             only\", or foreigners accepted conditionally)\n  NONE                       explicit openness to foreign applicants\n  UNKNOWN                    relevant language that establishes no\n                             restriction either way (e.g. \"Malaysians\n                             preferred\")\nOnly the first two can make HC-2 FAIL.",
+     "properties": {
+      "matched_text": {
+       "title": "Matched Text",
+       "type": "string"
+      },
+      "restriction_type": {
+       "title": "Restriction Type",
+       "type": "string"
+      },
+      "source_field": {
+       "title": "Source Field",
+       "type": "string"
+      },
+      "context": {
+       "default": "",
+       "title": "Context",
+       "type": "string"
+      }
+     },
+     "required": [
+      "matched_text",
+      "restriction_type",
+      "source_field"
+     ],
+     "title": "WorkAuthorizationEvidence",
+     "type": "object"
+    }
+   },
+   "additionalProperties": false,
+   "properties": {
+    "job": {
+     "$ref": "#/$defs/JobProjection"
+    },
+    "hard_filter": {
+     "$ref": "#/$defs/HardFilterEvaluation"
+    }
+   },
+   "required": [
+    "job",
+    "hard_filter"
+   ],
+   "title": "CoachInput",
+   "type": "object"
+  },
+  "JobProjection": {
+   "$defs": {
+    "SkillEvidence": {
+     "description": "One extracted technical concept for one job, with the provenance\nneeded to explain *why* it was extracted and *why* it was given its\nimportance. Not a score — a record of evidence.\n\nimportance: \"required\" | \"preferred\" | \"unknown\".\n\"unknown\" means the posting gave no reliable signal about how much the\nconcept matters (e.g. it only appears in prose outside any recognised\nrequirements/preferred section). It is deliberately NOT the same as\n\"preferred\".",
+     "properties": {
+      "name": {
+       "title": "Name",
+       "type": "string"
+      },
+      "kind": {
+       "title": "Kind",
+       "type": "string"
+      },
+      "importance": {
+       "title": "Importance",
+       "type": "string"
+      },
+      "importance_reason": {
+       "title": "Importance Reason",
+       "type": "string"
+      },
+      "source_field": {
+       "title": "Source Field",
+       "type": "string"
+      },
+      "section_heading": {
+       "default": "",
+       "title": "Section Heading",
+       "type": "string"
+      },
+      "matched_text": {
+       "default": "",
+       "title": "Matched Text",
+       "type": "string"
+      },
+      "context": {
+       "default": "",
+       "title": "Context",
+       "type": "string"
+      },
+      "mention_count": {
+       "default": 1,
+       "title": "Mention Count",
+       "type": "integer"
+      }
+     },
+     "required": [
+      "name",
+      "kind",
+      "importance",
+      "importance_reason",
+      "source_field"
+     ],
+     "title": "SkillEvidence",
+     "type": "object"
+    },
+    "WorkAuthorizationEvidence": {
+     "description": "One piece of job-side citizenship/work-authorization language, with\nthe provenance needed to show *why* HC-2 reached its status. Not a\ndecision — a record of evidence (same role as SkillEvidence).\n\nrestriction_type:\n  FOREIGNERS_NOT_ACCEPTED    explicit \"no foreigners\"-style exclusion\n  NATIONALITY_SPECIFIC       explicit \"X citizens only\"-style exclusion\n  OTHER_EXPLICIT_RESTRICTION a stated condition that does NOT deny all\n                             foreign applicants (work permit required,\n                             no sponsorship, SC/PR only, \"local candidates\n                             only\", or foreigners accepted conditionally)\n  NONE                       explicit openness to foreign applicants\n  UNKNOWN                    relevant language that establishes no\n                             restriction either way (e.g. \"Malaysians\n                             preferred\")\nOnly the first two can make HC-2 FAIL.",
+     "properties": {
+      "matched_text": {
+       "title": "Matched Text",
+       "type": "string"
+      },
+      "restriction_type": {
+       "title": "Restriction Type",
+       "type": "string"
+      },
+      "source_field": {
+       "title": "Source Field",
+       "type": "string"
+      },
+      "context": {
+       "default": "",
+       "title": "Context",
+       "type": "string"
+      }
+     },
+     "required": [
+      "matched_text",
+      "restriction_type",
+      "source_field"
+     ],
+     "title": "WorkAuthorizationEvidence",
+     "type": "object"
+    }
+   },
+   "additionalProperties": false,
+   "description": "IN-2 whitelist: the only job fields Career Coach can read. Every field\nis used by a named rule; nothing else on ProcessedJob is reachable.",
+   "properties": {
+    "job_id": {
+     "title": "Job Id",
+     "type": "string"
+    },
+    "company": {
+     "title": "Company",
+     "type": "string"
+    },
+    "company_normalized": {
+     "title": "Company Normalized",
+     "type": "string"
+    },
+    "job_title": {
+     "title": "Job Title",
+     "type": "string"
+    },
+    "country": {
+     "title": "Country",
+     "type": "string"
+    },
+    "canonical_url": {
+     "title": "Canonical Url",
+     "type": "string"
+    },
+    "posted_date": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Posted Date"
+    },
+    "source_job_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Source Job Ids",
+     "type": "array"
+    },
+    "sources": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Sources",
+     "type": "array"
+    },
+    "description_raw": {
+     "title": "Description Raw",
+     "type": "string"
+    },
+    "requirements_section_raw": {
+     "title": "Requirements Section Raw",
+     "type": "string"
+    },
+    "preferred_section_raw": {
+     "title": "Preferred Section Raw",
+     "type": "string"
+    },
+    "requirements_section_status": {
+     "title": "Requirements Section Status",
+     "type": "string"
+    },
+    "section_headings": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Section Headings",
+     "type": "array"
+    },
+    "role_family": {
+     "title": "Role Family",
+     "type": "string"
+    },
+    "role_level": {
+     "enum": [
+      "Intern",
+      "Junior",
+      "Principal",
+      "Lead",
+      "Staff",
+      "Manager",
+      "Senior",
+      "Mid/Unspecified"
+     ],
+     "title": "Role Level",
+     "type": "string"
+    },
+    "skill_evidence": {
+     "items": {
+      "$ref": "#/$defs/SkillEvidence"
+     },
+     "title": "Skill Evidence",
+     "type": "array"
+    },
+    "years_experience_required": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Years Experience Required"
+    },
+    "education_required": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Education Required"
+    },
+    "city": {
+     "title": "City",
+     "type": "string"
+    },
+    "location_normalized": {
+     "title": "Location Normalized",
+     "type": "string"
+    },
+    "remote_type": {
+     "title": "Remote Type",
+     "type": "string"
+    },
+    "hybrid_days": {
+     "title": "Hybrid Days",
+     "type": "string"
+    },
+    "salary_min": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Salary Min"
+    },
+    "salary_max": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Salary Max"
+    },
+    "salary_currency": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Salary Currency"
+    },
+    "salary_period": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Salary Period"
+    },
+    "salary_unknown": {
+     "title": "Salary Unknown",
+     "type": "boolean"
+    },
+    "employer_clarity": {
+     "title": "Employer Clarity",
+     "type": "string"
+    },
+    "work_authorization_status": {
+     "title": "Work Authorization Status",
+     "type": "string"
+    },
+    "work_authorization_restriction_type": {
+     "title": "Work Authorization Restriction Type",
+     "type": "string"
+    },
+    "work_authorization_evidence": {
+     "items": {
+      "$ref": "#/$defs/WorkAuthorizationEvidence"
+     },
+     "title": "Work Authorization Evidence",
+     "type": "array"
+    }
+   },
+   "required": [
+    "job_id",
+    "company",
+    "company_normalized",
+    "job_title",
+    "country",
+    "canonical_url",
+    "posted_date",
+    "source_job_ids",
+    "sources",
+    "description_raw",
+    "requirements_section_raw",
+    "preferred_section_raw",
+    "requirements_section_status",
+    "section_headings",
+    "role_family",
+    "role_level",
+    "skill_evidence",
+    "years_experience_required",
+    "education_required",
+    "city",
+    "location_normalized",
+    "remote_type",
+    "hybrid_days",
+    "salary_min",
+    "salary_max",
+    "salary_currency",
+    "salary_period",
+    "salary_unknown",
+    "employer_clarity",
+    "work_authorization_status",
+    "work_authorization_restriction_type",
+    "work_authorization_evidence"
+   ],
+   "title": "JobProjection",
+   "type": "object"
+  },
+  "HardFilterEvaluation": {
+   "additionalProperties": false,
+   "description": "The existing filter_jobs result for one job, consumed as-is (IN-1).",
+   "properties": {
+    "passed": {
+     "title": "Passed",
+     "type": "boolean"
+    },
+    "reasons": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Reasons",
+     "type": "array"
+    },
+    "hc_substantive_ds_status": {
+     "title": "Hc Substantive Ds Status",
+     "type": "string"
+    },
+    "hc_work_authorization_status": {
+     "title": "Hc Work Authorization Status",
+     "type": "string"
+    }
+   },
+   "required": [
+    "passed",
+    "hc_substantive_ds_status",
+    "hc_work_authorization_status"
+   ],
+   "title": "HardFilterEvaluation",
+   "type": "object"
+  },
+  "LiveCheckRecord": {
+   "additionalProperties": false,
+   "description": "LC-1: one dated, append-only live observation. The engine never makes\nlive checks itself; it only reads records like this (M15).",
+   "properties": {
+    "record_id": {
+     "title": "Record Id",
+     "type": "string"
+    },
+    "job_id": {
+     "title": "Job Id",
+     "type": "string"
+    },
+    "source_job_id": {
+     "title": "Source Job Id",
+     "type": "string"
+    },
+    "checked_on": {
+     "format": "date",
+     "title": "Checked On",
+     "type": "string"
+    },
+    "method": {
+     "title": "Method",
+     "type": "string"
+    },
+    "page_reviewable": {
+     "enum": [
+      "YES",
+      "NO"
+     ],
+     "title": "Page Reviewable",
+     "type": "string"
+    },
+    "email_in_jd": {
+     "enum": [
+      "YES",
+      "NO"
+     ],
+     "title": "Email In Jd",
+     "type": "string"
+    },
+    "posting_status": {
+     "enum": [
+      "OPEN",
+      "CLOSED",
+      "UNKNOWN"
+     ],
+     "title": "Posting Status",
+     "type": "string"
+    }
+   },
+   "required": [
+    "record_id",
+    "job_id",
+    "source_job_id",
+    "checked_on",
+    "method",
+    "page_reviewable",
+    "email_in_jd",
+    "posting_status"
+   ],
+   "title": "LiveCheckRecord",
+   "type": "object"
+  },
+  "CoachDeclarations": {
+   "$defs": {
+    "CompensationFloor": {
+     "additionalProperties": false,
+     "properties": {
+      "currency": {
+       "title": "Currency",
+       "type": "string"
+      },
+      "monthly_amount": {
+       "exclusiveMinimum": 0,
+       "title": "Monthly Amount",
+       "type": "number"
+      },
+      "hard": {
+       "title": "Hard",
+       "type": "boolean"
+      }
+     },
+     "required": [
+      "currency",
+      "monthly_amount",
+      "hard"
+     ],
+     "title": "CompensationFloor",
+     "type": "object"
+    },
+    "ExperienceDeclaration": {
+     "additionalProperties": false,
+     "description": "EX-0..EX-5. Only the candidate supplies values; UNKNOWN stays UNKNOWN.\ncurrent_role_years is tenure and is never compared with a job (EX-0).",
+     "properties": {
+      "current_role_years": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "const": "UNKNOWN",
+         "type": "string"
+        }
+       ],
+       "title": "Current Role Years"
+      },
+      "relevant_ds_years": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "const": "UNKNOWN",
+         "type": "string"
+        }
+       ],
+       "title": "Relevant Ds Years"
+      },
+      "relevant_ml_years": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "const": "UNKNOWN",
+         "type": "string"
+        }
+       ],
+       "title": "Relevant Ml Years"
+      },
+      "relevant_domain_years": {
+       "additionalProperties": {
+        "anyOf": [
+         {
+          "type": "number"
+         },
+         {
+          "const": "UNKNOWN",
+          "type": "string"
+         }
+        ]
+       },
+       "title": "Relevant Domain Years",
+       "type": "object"
+      }
+     },
+     "required": [
+      "current_role_years",
+      "relevant_ds_years",
+      "relevant_ml_years"
+     ],
+     "title": "ExperienceDeclaration",
+     "type": "object"
+    },
+    "SeniorityDeclaration": {
+     "additionalProperties": false,
+     "description": "SN-0: levels drawn from the role classifier's declarable levels only.",
+     "properties": {
+      "aligned_levels": {
+       "items": {
+        "enum": [
+         "Intern",
+         "Junior",
+         "Principal",
+         "Lead",
+         "Staff",
+         "Manager",
+         "Senior"
+        ],
+        "type": "string"
+       },
+       "title": "Aligned Levels",
+       "type": "array"
+      },
+      "stretch_levels": {
+       "items": {
+        "enum": [
+         "Intern",
+         "Junior",
+         "Principal",
+         "Lead",
+         "Staff",
+         "Manager",
+         "Senior"
+        ],
+        "type": "string"
+       },
+       "title": "Stretch Levels",
+       "type": "array"
+      }
+     },
+     "title": "SeniorityDeclaration",
+     "type": "object"
+    },
+    "TargetTracks": {
+     "additionalProperties": false,
+     "properties": {
+      "primary": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Primary",
+       "type": "array"
+      },
+      "secondary": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Secondary",
+       "type": "array"
+      },
+      "adjacent_ok": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Adjacent Ok",
+       "type": "array"
+      },
+      "non_target": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Non Target",
+       "type": "array"
+      }
+     },
+     "required": [
+      "primary",
+      "secondary",
+      "adjacent_ok",
+      "non_target"
+     ],
+     "title": "TargetTracks",
+     "type": "object"
+    }
+   },
+   "additionalProperties": false,
+   "description": "profile.yaml `career_coach:` — the candidate's own declarations (M2).",
+   "properties": {
+    "target_tracks": {
+     "$ref": "#/$defs/TargetTracks"
+    },
+    "compensation_floor": {
+     "additionalProperties": {
+      "anyOf": [
+       {
+        "$ref": "#/$defs/CompensationFloor"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Compensation Floor",
+     "type": "object"
+    },
+    "work_authorization": {
+     "additionalProperties": {
+      "enum": [
+       "PASS",
+       "UNKNOWN",
+       "NOT_ELIGIBLE"
+      ],
+      "type": "string"
+     },
+     "title": "Work Authorization",
+     "type": "object"
+    },
+    "experience": {
+     "$ref": "#/$defs/ExperienceDeclaration"
+    },
+    "seniority": {
+     "$ref": "#/$defs/SeniorityDeclaration"
+    },
+    "resume_variants_ready": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Resume Variants Ready"
+    }
+   },
+   "required": [
+    "target_tracks",
+    "compensation_floor",
+    "work_authorization",
+    "experience",
+    "seniority",
+    "resume_variants_ready"
+   ],
+   "title": "CoachDeclarations",
+   "type": "object"
+  },
+  "CoachConfig": {
+   "$defs": {
+    "ActivityEvidenceCondition": {
+     "additionalProperties": false,
+     "properties": {
+      "activities": {
+       "items": {
+        "enum": [
+         "MODELLING",
+         "DEPLOYMENT",
+         "EXPERIMENTATION",
+         "OPTIMISATION",
+         "ANALYTICS",
+         "RESEARCH",
+         "MLOPS_PLATFORM",
+         "GENAI_APPS",
+         "DASHBOARDS_MIS",
+         "PROJECT_DELIVERY"
+        ],
+        "type": "string"
+       },
+       "minItems": 1,
+       "title": "Activities",
+       "type": "array"
+      },
+      "matching": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Matching"
+      },
+      "not_matching": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Not Matching"
+      }
+     },
+     "required": [
+      "activities"
+     ],
+     "title": "ActivityEvidenceCondition",
+     "type": "object"
+    },
+    "ActivityPattern": {
+     "additionalProperties": false,
+     "properties": {
+      "id": {
+       "title": "Id",
+       "type": "string"
+      },
+      "verbs": {
+       "title": "Verbs",
+       "type": "string"
+      },
+      "objects": {
+       "title": "Objects",
+       "type": "string"
+      }
+     },
+     "required": [
+      "id",
+      "verbs",
+      "objects"
+     ],
+     "title": "ActivityPattern",
+     "type": "object"
+    },
+    "ActivitySpec": {
+     "additionalProperties": false,
+     "properties": {
+      "patterns": {
+       "items": {
+        "$ref": "#/$defs/ActivityPattern"
+       },
+       "minItems": 1,
+       "title": "Patterns",
+       "type": "array"
+      },
+      "exclusions": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Exclusions",
+       "type": "array"
+      }
+     },
+     "required": [
+      "patterns"
+     ],
+     "title": "ActivitySpec",
+     "type": "object"
+    },
+    "DomainCondition": {
+     "additionalProperties": false,
+     "properties": {
+      "terms": {
+       "items": {
+        "type": "string"
+       },
+       "minItems": 1,
+       "title": "Terms",
+       "type": "array"
+      },
+      "placements": {
+       "items": {
+        "enum": [
+         "OWN_WORK",
+         "DEFINING",
+         "CONTEXT"
+        ],
+        "type": "string"
+       },
+       "minItems": 1,
+       "title": "Placements",
+       "type": "array"
+      }
+     },
+     "required": [
+      "terms",
+      "placements"
+     ],
+     "title": "DomainCondition",
+     "type": "object"
+    },
+    "Positioning": {
+     "additionalProperties": false,
+     "properties": {
+      "label": {
+       "title": "Label",
+       "type": "string"
+      },
+      "tracks": {
+       "items": {
+        "type": "string"
+       },
+       "minItems": 1,
+       "title": "Tracks",
+       "type": "array"
+      }
+     },
+     "required": [
+      "label",
+      "tracks"
+     ],
+     "title": "Positioning",
+     "type": "object"
+    },
+    "Thresholds": {
+     "additionalProperties": false,
+     "properties": {
+      "heavy_gap_min": {
+       "minimum": 1,
+       "title": "Heavy Gap Min",
+       "type": "integer"
+      },
+      "k_stretch_years": {
+       "minimum": 0,
+       "title": "K Stretch Years",
+       "type": "number"
+      },
+      "live_check_window_days": {
+       "minimum": 0,
+       "title": "Live Check Window Days",
+       "type": "integer"
+      }
+     },
+     "required": [
+      "heavy_gap_min",
+      "k_stretch_years",
+      "live_check_window_days"
+     ],
+     "title": "Thresholds",
+     "type": "object"
+    },
+    "TrackCondition": {
+     "additionalProperties": false,
+     "description": "All keys present in one condition must hold (AND); any_of / all_of nest.",
+     "properties": {
+      "activity_present": {
+       "anyOf": [
+        {
+         "items": {
+          "enum": [
+           "MODELLING",
+           "DEPLOYMENT",
+           "EXPERIMENTATION",
+           "OPTIMISATION",
+           "ANALYTICS",
+           "RESEARCH",
+           "MLOPS_PLATFORM",
+           "GENAI_APPS",
+           "DASHBOARDS_MIS",
+           "PROJECT_DELIVERY"
+          ],
+          "type": "string"
+         },
+         "type": "array"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Activity Present"
+      },
+      "activity_absent": {
+       "anyOf": [
+        {
+         "items": {
+          "enum": [
+           "MODELLING",
+           "DEPLOYMENT",
+           "EXPERIMENTATION",
+           "OPTIMISATION",
+           "ANALYTICS",
+           "RESEARCH",
+           "MLOPS_PLATFORM",
+           "GENAI_APPS",
+           "DASHBOARDS_MIS",
+           "PROJECT_DELIVERY"
+          ],
+          "type": "string"
+         },
+         "type": "array"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Activity Absent"
+      },
+      "central_work_in": {
+       "anyOf": [
+        {
+         "items": {
+          "enum": [
+           "MODELLING",
+           "DEPLOYMENT",
+           "EXPERIMENTATION",
+           "OPTIMISATION",
+           "ANALYTICS",
+           "RESEARCH",
+           "MLOPS_PLATFORM",
+           "GENAI_APPS",
+           "DASHBOARDS_MIS",
+           "PROJECT_DELIVERY"
+          ],
+          "type": "string"
+         },
+         "type": "array"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Central Work In"
+      },
+      "domain": {
+       "anyOf": [
+        {
+         "$ref": "#/$defs/DomainCondition"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null
+      },
+      "title_regex": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Title Regex"
+      },
+      "work_sentence_regex": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Work Sentence Regex"
+      },
+      "role_family_in": {
+       "anyOf": [
+        {
+         "items": {
+          "type": "string"
+         },
+         "type": "array"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Role Family In"
+      },
+      "activity_evidence": {
+       "anyOf": [
+        {
+         "$ref": "#/$defs/ActivityEvidenceCondition"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null
+      },
+      "any_of": {
+       "anyOf": [
+        {
+         "items": {
+          "$ref": "#/$defs/TrackCondition"
+         },
+         "type": "array"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Any Of"
+      },
+      "all_of": {
+       "anyOf": [
+        {
+         "items": {
+          "$ref": "#/$defs/TrackCondition"
+         },
+         "type": "array"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "All Of"
+      }
+     },
+     "title": "TrackCondition",
+     "type": "object"
+    },
+    "TrackSpec": {
+     "additionalProperties": false,
+     "properties": {
+      "specificity": {
+       "anyOf": [
+        {
+         "enum": [
+          "DOMAIN",
+          "FUNCTION",
+          "GENERAL"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Specificity"
+      },
+      "defining": {
+       "default": false,
+       "title": "Defining",
+       "type": "boolean"
+      },
+      "match": {
+       "$ref": "#/$defs/TrackCondition"
+      }
+     },
+     "required": [
+      "match"
+     ],
+     "title": "TrackSpec",
+     "type": "object"
+    },
+    "WorkTextConfig": {
+     "additionalProperties": false,
+     "properties": {
+      "responsibility_headings": {
+       "items": {
+        "type": "string"
+       },
+       "minItems": 1,
+       "title": "Responsibility Headings",
+       "type": "array"
+      },
+      "boilerplate_headings": {
+       "items": {
+        "type": "string"
+       },
+       "minItems": 1,
+       "title": "Boilerplate Headings",
+       "type": "array"
+      }
+     },
+     "required": [
+      "responsibility_headings",
+      "boilerplate_headings"
+     ],
+     "title": "WorkTextConfig",
+     "type": "object"
+    }
+   },
+   "additionalProperties": false,
+   "properties": {
+    "version": {
+     "const": "career_coach_v1.2",
+     "title": "Version",
+     "type": "string"
+    },
+    "thresholds": {
+     "$ref": "#/$defs/Thresholds"
+    },
+    "level_rungs": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "propertyNames": {
+      "enum": [
+       "Intern",
+       "Junior",
+       "Principal",
+       "Lead",
+       "Staff",
+       "Manager",
+       "Senior"
+      ]
+     },
+     "title": "Level Rungs",
+     "type": "object"
+    },
+    "education_ranks": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "title": "Education Ranks",
+     "type": "object"
+    },
+    "work_text": {
+     "$ref": "#/$defs/WorkTextConfig"
+    },
+    "activity_precedence": {
+     "items": {
+      "enum": [
+       "MODELLING",
+       "DEPLOYMENT",
+       "EXPERIMENTATION",
+       "OPTIMISATION",
+       "ANALYTICS",
+       "RESEARCH",
+       "MLOPS_PLATFORM",
+       "GENAI_APPS",
+       "DASHBOARDS_MIS",
+       "PROJECT_DELIVERY"
+      ],
+      "type": "string"
+     },
+     "title": "Activity Precedence",
+     "type": "array"
+    },
+    "activities": {
+     "additionalProperties": {
+      "$ref": "#/$defs/ActivitySpec"
+     },
+     "propertyNames": {
+      "enum": [
+       "MODELLING",
+       "DEPLOYMENT",
+       "EXPERIMENTATION",
+       "OPTIMISATION",
+       "ANALYTICS",
+       "RESEARCH",
+       "MLOPS_PLATFORM",
+       "GENAI_APPS",
+       "DASHBOARDS_MIS",
+       "PROJECT_DELIVERY"
+      ]
+     },
+     "title": "Activities",
+     "type": "object"
+    },
+    "domains": {
+     "additionalProperties": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "title": "Domains",
+     "type": "object"
+    },
+    "tracks": {
+     "additionalProperties": {
+      "$ref": "#/$defs/TrackSpec"
+     },
+     "title": "Tracks",
+     "type": "object"
+    },
+    "positionings": {
+     "additionalProperties": {
+      "$ref": "#/$defs/Positioning"
+     },
+     "title": "Positionings",
+     "type": "object"
+    }
+   },
+   "required": [
+    "version",
+    "thresholds",
+    "level_rungs",
+    "education_ranks",
+    "work_text",
+    "activity_precedence",
+    "activities",
+    "domains",
+    "tracks",
+    "positionings"
+   ],
+   "title": "CoachConfig",
+   "type": "object"
+  }
+ }
+}

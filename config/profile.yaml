@@ -1,0 +1,136 @@
+# EXAMPLE candidate profile — every value below is FICTIONAL and exists to show how the
+# system works. Replace it with your own declarations. Nothing in src/ hardcodes these
+# values; they are read at runtime.
+
+current_role: "Data Analyst"
+current_industry: "E-commerce analytics"
+current_company: "Example Retail (fictional)"
+current_location: "Penang, Malaysia"
+years_experience_current_role: 3
+
+target_roles:
+  - "Data Scientist"
+  - "Product Data Scientist"
+  - "Decision Scientist"
+  - "Applied Scientist"
+  - "Machine Learning Engineer"
+
+target_locations:
+  - "Malaysia"
+  - "Singapore"
+  - "Penang"
+  - "Kuala Lumpur"
+  - "Remote"
+
+skills:
+  strong:
+    - Python
+    - SQL
+    - pandas
+    - Scikit-learn
+    - LightGBM
+    - Statistics
+    - A/B Testing
+    - Regression
+    - Forecasting
+  moderate:
+    - PyTorch
+    - Spark
+    - Tableau
+    - Classification
+    - Causal Inference
+
+# Candidate TECHNIQUE evidence. Populated ONLY with entries already listed under
+# `skills` above whose kind is "technique" in config/skills_taxonomy.yaml — nothing
+# is inferred from the degree, job title, or generic ML experience. Techniques not
+# listed are UNKNOWN, not "absent" and not "present". A consistency test
+# (tests/test_candidate_profile.py) keeps this in sync with `skills`.
+techniques:
+  strong:
+    - Statistics
+    - A/B Testing
+    - Regression
+    - Forecasting
+  moderate:
+    - Classification
+    - Causal Inference
+
+domain:
+  - E-commerce
+  - Payments
+  - Logistics
+
+education:
+  - "Bachelor's degree (fictional)"
+
+education_level_rank: 2   # 1=diploma 2=bachelor 3=master 4=phd — used for education_required comparison
+
+# Career Transition V1 (legacy Transition Lens) — declared, never inferred. Annotation-only.
+# Track IDs are defined in config/tracks.yaml.
+transition:
+  target_tracks:
+    primary:     [PRODUCT_DS, DECISION_SCIENTIST, EXPERIMENTATION_CAUSAL, APPLIED_DS]
+    secondary:   [PRICING_FORECASTING, RISK_DS, ML_ENGINEER]
+    adjacent_ok: [FRAUD_FINCRIME_DS, CREDIT_RISK_DS, APPLIED_SCIENTIST, ML_SCIENTIST]
+    non_target:  [DATA_ANALYST, BI_ANALYST, MIS_REPORTING, ANALYTICS_HEAVY, MLOPS_PLATFORM]
+
+  # D-2: monthly floor, compared in the posting's own currency (no FX, no
+  # cost-of-living inference). null = no floor declared for that country, so its
+  # postings report UNKNOWN (no_floor_for_country). UNKNOWN is never a negative signal.
+  compensation_floor:
+    Malaysia:  {currency: MYR, monthly_amount: 7500}
+    Singapore: null
+
+  # D-3: PASS | UNKNOWN | NOT_ELIGIBLE per country. Never inferred.
+  work_authorization:
+    Malaysia:  PASS
+    Singapore: UNKNOWN
+
+  # Optional, per required technique you have no profile evidence for:
+  # translation | portfolio | transferable | not_pursuing. Nothing is inferred.
+  gap_classifications: {}
+
+# Application Strategy V1 (legacy) — a floor can be hard only where one is configured above.
+application_strategy:
+  hard_constraints:
+    compensation_floor:
+      Malaysia: true    # a posting whose maximum is below MYR 7500/month is blocked
+
+# Career Coach V1.2 — declared, never inferred. Track IDs are defined in
+# config/career_coach.yaml. Every vocabulary track must be declared in exactly one
+# tier; tracks without a résumé positioning can only be non_target.
+career_coach:
+  target_tracks:
+    primary:     [PRODUCT_DS, DECISION_SCIENTIST, EXPERIMENTATION_CAUSAL, APPLIED_DS]
+    secondary:   [PRICING_FORECASTING, RISK_DS, ML_ENGINEER]
+    adjacent_ok: [FRAUD_FINCRIME_DS, CREDIT_RISK_DS, APPLIED_SCIENTIST, ML_SCIENTIST]
+    non_target:  [DATA_ANALYST, BI_ANALYST, MIS_REPORTING, ANALYTICS_HEAVY, MLOPS_PLATFORM]
+
+  # Monthly, in the posting's own currency. hard: true blocks a posting whose
+  # maximum is below the floor (V-3); hard: false only limits priority (P-1).
+  compensation_floor:
+    Malaysia:  {currency: MYR, monthly_amount: 7500, hard: true}
+    Singapore: null
+
+  # PASS | UNKNOWN | NOT_ELIGIBLE per country. Never inferred.
+  work_authorization:
+    Malaysia:  PASS
+    Singapore: UNKNOWN
+
+  # Years, or UNKNOWN. current_role_years is tenure and is never compared with
+  # a job's stated years (EX-0); only the relevant_* measures are (EX-1).
+  experience:
+    current_role_years: 3
+    relevant_ds_years: 1
+    relevant_ml_years: 2
+    relevant_domain_years: {}
+
+  # Levels exactly as the role classifier names them (Mid/Unspecified is not
+  # declarable). A job level outside both lists is a seniority gap.
+  seniority:
+    aligned_levels: [Junior]
+    stretch_levels: [Senior, Lead]
+
+  # Résumé positionings (config/career_coach.yaml `positionings`) with a ready
+  # variant. null = not declared yet.
+  resume_variants_ready: null

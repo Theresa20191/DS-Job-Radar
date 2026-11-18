@@ -1,0 +1,142 @@
+# Technical concept taxonomy, split by KIND (evidence-layer phase).
+#
+#   tools      - named software/platforms/languages/libraries a person operates
+#   techniques - modelling concepts / methods (what kind of modelling work)
+#
+# Domain/subject-matter concepts (Fraud, AML, Risk, Credit Risk, Banking,
+# Insurance, Payments...) do NOT belong here — they live only in
+# config/profile.yaml `domain` and are matched by scoring/domain_alignment.py.
+#
+# Entry format:
+#   Name:
+#     legacy: true        # OPTIONAL. true = this concept was in the original flat
+#                         # taxonomy and feeds the legacy required_skills/
+#                         # preferred_skills lists (patterns byte-identical to the
+#                         # original). No score reads those lists any more (the
+#                         # retired technical_fit did). All concepts, legacy or not,
+#                         # feed tools/techniques/skill_evidence, which
+#                         # technical_alignment reads.
+#     patterns: [...]     # each item is a regex string, or a mapping:
+#                         #   {pattern: '...', requires: '...', excludes: '...'}
+#                         # `requires`: regex that must match in a +/-60 char window
+#                         #             around the hit (for ambiguous bare words)
+#                         # `excludes`: regex that vetoes the hit if it matches in
+#                         #             that window (e.g. "regression testing")
+# All matching is case-insensitive. Use \b word boundaries for new terms.
+
+tools:
+  Python: {legacy: true, patterns: ['python']}
+  SQL: {legacy: true, patterns: ['sql', 'mysql', 'postgresql', 't-sql', 'pl/sql']}
+  pandas: {legacy: true, patterns: ['\bpandas\b']}
+  numpy: {legacy: true, patterns: ['\bnumpy\b']}
+  matplotlib: {legacy: true, patterns: ['matplotlib']}
+  seaborn: {legacy: true, patterns: ['seaborn']}
+  R: {legacy: true, patterns: ['\br\b programming', '\br language', ' r,', ' r/']}
+  Scikit-learn: {legacy: true, patterns: ['scikit-learn', 'sklearn']}
+  XGBoost: {legacy: true, patterns: ['xgboost']}
+  CatBoost: {legacy: true, patterns: ['catboost']}
+  LightGBM: {legacy: true, patterns: ['lightgbm']}
+  TensorFlow: {legacy: true, patterns: ['tensorflow']}
+  PyTorch: {legacy: true, patterns: ['pytorch']}
+  Spark: {legacy: true, patterns: ['spark', 'pyspark']}
+  Databricks: {legacy: true, patterns: ['databricks']}
+  AWS: {legacy: true, patterns: ['aws', 'amazon web services', 'sagemaker']}
+  GCP: {legacy: true, patterns: ['gcp', 'google cloud', 'bigquery', 'vertex ai']}
+  Azure: {legacy: true, patterns: ['azure']}
+  Docker: {legacy: true, patterns: ['docker']}
+  Kubernetes: {legacy: true, patterns: ['kubernetes', '\bk8s\b']}
+  Git: {legacy: true, patterns: ['\bgit\b', 'github', 'gitlab']}
+  Airflow: {legacy: true, patterns: ['airflow']}
+  dbt: {legacy: true, patterns: ['\bdbt\b']}
+  Power BI: {legacy: true, patterns: ['power bi', 'powerbi']}
+  Tableau: {legacy: true, patterns: ['tableau']}
+  Qlik: {legacy: true, patterns: ['qlik']}
+
+techniques:
+  # --- legacy (also feed the legacy required/preferred skill lists) ---
+  Statistics: {legacy: true, patterns: ['statistics', 'statistical modeling', 'statistical modelling', 'hypothesis testing']}
+  Machine Learning: {legacy: true, patterns: ['machine learning', '\bml\b']}
+  Deep Learning: {legacy: true, patterns: ['deep learning', 'neural network']}
+  A/B Testing: {legacy: true, patterns: ['a/b test', 'ab testing', 'split test']}
+  Experimentation: {legacy: true, patterns: ['experimentation', 'experiment design']}
+  Causal Inference: {legacy: true, patterns: ['causal inference']}
+  Time Series: {legacy: true, patterns: ['time series', 'time-series']}
+  Forecasting: {legacy: true, patterns: ['forecasting', 'demand forecast']}
+  NLP: {legacy: true, patterns: ['\bnlp\b', 'natural language processing']}
+  LLM: {legacy: true, patterns: ['\bllm\b', 'large language model', 'generative ai', 'genai']}
+  Generative AI: {legacy: true, patterns: ['generative ai', 'genai']}
+  Computer Vision: {legacy: true, patterns: ['computer vision', 'image recognition', 'object detection']}
+  Recommendation Systems: {legacy: true, patterns: ['recommendation system', 'recommender system']}
+  # Model families with no install/product surface -> classified as techniques
+  # (judgment call: XGBoost/CatBoost/LightGBM are shipped libraries, so tools).
+  ExtraTrees: {legacy: true, patterns: ['extra trees', 'extratrees']}
+  LSTM: {legacy: true, patterns: ['lstm']}
+  Predictive Modeling: {legacy: true, patterns: ['predictive model', 'predictive analytics']}
+
+  # --- evidence-layer additions (skill_evidence only) ---
+  Classification:
+    patterns:
+      - '\b(?:binary|multi-?class|multi-?label|multiclass|image|video|text|document|supervised|sentiment)\s+classification\b'
+      - '\bclassification\s+(?:model|models|algorithm|algorithms|problem|problems|task|tasks|technique|techniques|and regression)\b'
+      - '\bregression\s+and\s+classification\b'
+      - '\bclassifiers?\b'
+      # bare word: only when sitting among other modelling vocabulary
+      - pattern: '\bclassification\b'
+        requires: 'regression|clustering|forecast|recommend|supervised|machine learning|\bml\b|predictive|neural|\bmodels?\b|classifier|detection|\bnlp\b|vision|anomal|segmentation|prediction'
+        excludes: '(?:job|role|employee|data|information|security|tax|customs|asset|risk|document|account|customer|product)\s+classification'
+  Regression:
+    patterns:
+      - '\b(?:linear|logistic|ridge|lasso|elastic[- ]?net|polynomial|quantile|poisson|cox|bayesian)\s+regression\b'
+      - '\bregression\s+(?:analysis|model|models|modelling|modeling|algorithm|algorithms|techniques?)\b'
+      - pattern: '\bregression\b'
+        excludes: 'regression\s+(?:test|tests|testing|suite|suites|bug|bugs|defect|defects|cycle|cycles)|(?:automated|manual|functional|performance|sanity|ui|api|smoke|integration)\s+regression|regression to the mean'
+  Clustering:
+    patterns: ['\bclustering\b', '\bk-?means\b']
+  Anomaly Detection:
+    patterns:
+      - '\banomal(?:y|ies)\s+detection\b'
+      - '\boutlier\s+detection\b'
+      - '\bdetect(?:s|ing|ion of)?\s+(?:\w+\s+){0,2}anomal(?:y|ies)\b'
+  Ranking:
+    patterns:
+      - '\b(?:learning[- ]to[- ]rank|re-?rank(?:ing|er)?|pre-?rank)\b'
+      - '\branking\s+(?:system|systems|model|models|algorithm|algorithms|problems?)\b'
+      - '\b(?:recommendation|search)\s+(?:and|&)\s+ranking\b'
+      - pattern: '\branking\b'
+        requires: 'recommend|retrieval|search|relevance|candidate generation|\bctr\b|click|personali[sz]ation|feed'
+        excludes: 'low-rank'
+  Optimisation:
+    patterns:
+      - '\b(?:mathematical|convex|linear|integer|combinatorial|stochastic|constrained|discrete|numerical|portfolio|price|pricing|promotion|promotional|inventory|supply chain|route|routing|revenue|scheduling|resource)\s+optimi[sz]ation\b'
+      - '\boptimi[sz]ation\s+(?:model|models|algorithm|algorithms|problem|problems|solver|solvers|techniques?|use cases?|methods?)\b'
+      # OR as a degree ("Bachelor's in ... Operations Research") is education, not technique
+      - pattern: '\boperations research\b'
+        excludes: 'bachelor|master|degree|ph\.?d|diploma|b\.?sc|m\.?sc|equivalent'
+      - '\b(?:linear|integer|mixed[- ]integer|convex|dynamic|stochastic|constraint)\s+programming\b'
+      - '\bmilp\b'
+      # bare noun: only alongside modelling vocabulary; business "cost/process/SEO
+      # optimization" is not a modelling technique
+      - pattern: '\boptimi[sz]ation\b'
+        requires: 'machine learning|operations research|forecast|simulation|solver|mathematical|programming|neural|classification|regression|predictive|statistical|clustering|deep learning'
+        excludes: '(?:performance|cost|seo|code|query|website|process|workflow|infrastructure|conversion|campaign|budget)\s+optimi[sz]ation'
+  Feature Engineering:
+    patterns:
+      - '\bfeature[- ]engineering\b'
+      - '\bengineer(?:ing)?\s+(?:\w+\s+){0,2}features\b'
+  Model Evaluation:
+    patterns:
+      - '\bmodel[- ](?:evaluation|validation)\b'
+      - '\bevaluat(?:e|es|ing|ion of)\s+(?:\w+\s+){0,3}models?\b'
+      - '\b(?:evaluation|validation|model performance)\s+metrics\b'   # not bare "performance metrics" (business KPIs)
+      - '\bcross[- ]validation\b'
+  Model Deployment:
+    patterns:
+      - '\bmodel[- ]deployment\b'
+      - '\bdeploy(?:s|ed|ing|ment)?\b[^.\n]{0,40}?\b(?:models?|ml|machine learning|ai)\b'
+  Production ML:
+    patterns:
+      - '\bproduction[- ](?:grade |ready |level )?(?:ml|machine learning|models?|ai|data science)\b'
+      - '\b(?:ml|machine learning|models?)\s+(?:systems?\s+)?in production\b'
+      - '\bproductioni[sz](?:e|es|ed|ing|ation)\b[^.\n]{0,30}?\b(?:models?|ml|machine learning|ai)\b'
+  MLOps:
+    patterns: ['\bml[- ]?ops\b', '\bllm[- ]?ops\b', '\bmachine learning operations\b', '\bml operations\b']

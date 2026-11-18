@@ -1,0 +1,14 @@
+# Job sources whose raw files the pipeline reads: data/raw/<source>_latest.jsonl.
+#
+# Public release: the live collection adapters for these sources are NOT included
+# (see README, "What is excluded"). Downstream code needs only the source names:
+# they name the raw files, select each source's field parsing (salary, location),
+# and the Singapore application-channel rule applies to "mycareersfuture" postings.
+# The offline demo (scripts/run_demo.py) provides synthetic raw files for both.
+sources:
+  mycareersfuture:
+    enabled: true
+    country: "Singapore"
+  hiredly:
+    enabled: true
+    country: "Malaysia"

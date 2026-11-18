@@ -1,0 +1,94 @@
+# Scoring configuration.
+#
+# `weights` are the Base components only. Base is their weighted mean,
+# renormalized over the components that are KNOWN for a given job, so only
+# the ratios matter. Technical and domain evidence is NOT here: it is scored
+# once, through Personal Transition Fit (PTF), and enters Overall as
+#     Overall = clamp(0.60 * Base + 0.40 * PTF + network_bonus - job_risk_penalty)
+# The PTF bands (15/45/75), gain (k = 1/3) and PTF weight (lambda = 2/3) are
+# the frozen, versioned `ptf_support_v1` contract in src/scoring/ptf_scale.py
+# — change them only through a new scale version, never here.
+# network_bonus and job_risk are post-aggregation adjustments, not weights.
+
+weights:
+  job_quality: 0.30   # renamed from career_transition — same value, pure rename (see scoring architecture audit)
+  interview_fit: 0.10
+  compensation: 0.08
+  company_maturity: 0.07
+  location: 0.05
+
+network_bonus_max: 10
+job_risk_penalty_max: 20
+
+# Tier cutoffs are DERIVED, not configured: each boundary is the overall
+# score of a reference genuine-DS job (every other component at its
+# module-declared neutral value) at a given PTF state — see
+# src/scoring/tiers.py. They are stored exactly (C ~ 42.26, B ~ 60.26,
+# A ~ 72.26); one-decimal values are display only.
+
+opportunity_types:
+  strong_interview_fit_min_interview_fit: 70   # renamed from HIGH_PROBABILITY — interview_fit is not a probability
+  strong_interview_fit_max_seniority_gap_years: 1
+  stretch_min_seniority_gap_years: 2
+  # STRETCH minimum overall score = the exact derived Tier C cutoff (not configurable)
+  domain_advantage_min_band: SUBSTANTIVE       # domain_alignment band >= this
+  high_compensation_min_percentile: 75  # within the current scored batch, salary-known jobs only
+
+job_quality:
+  # These keyword lists are now EXPLANATORY ONLY (surfaced in reasons
+  # text) — they no longer add/subtract points. job_quality_score's
+  # numeric value comes solely from role_type's categorical base
+  # (src/scoring/job_quality.py) to avoid double-counting the same
+  # ML-signal evidence that role_type itself was already classified from.
+  positive_keywords:
+    - predictive modelling
+    - predictive modeling
+    - machine learning
+    - ml model
+    - experimentation
+    - a/b test
+    - statistical model
+    - production ml
+    - model deployment
+    - feature engineering
+    - model evaluation
+    - forecasting
+    - causal inference
+    - model ownership
+    - mentorship
+    - ml platform
+    - deep learning
+    - nlp
+    - computer vision
+  negative_keywords:
+    - dashboard maintenance
+    - report generation
+    - mis reporting
+    - ad-hoc reporting
+    - data entry
+    - manual reporting
+
+hard_filters:
+  reject_role_families: ["Software Engineer", "Business Analyst", "BI Analyst"]
+  min_description_length_chars: 100
+  max_job_age_days: 120
+  required_countries: ["Malaysia", "Singapore"]
+  allow_remote_regardless_of_country: true
+
+compensation:
+  sgd_to_myr_rate: 3.35   # approximate, for cross-currency comparison only — not a live FX rate
+
+completeness:
+  # checklist used for data_completeness_pct (job-side data richness).
+  # requirements_present = a requirements section was detected by the
+  # evidence-layer section detector.
+  completeness_fields:
+    - title
+    - company
+    - location
+    - description_min_length
+    - requirements_present
+    - salary_known
+    - years_experience_known
+    - employment_type_known
+    - skills_extracted

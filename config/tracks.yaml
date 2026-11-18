@@ -1,0 +1,147 @@
+# Transition Lens track VOCABULARY (transition_lens_v1) — system config.
+#
+# Which tracks YOU target lives in config/profile.yaml (transition.target_tracks).
+# This file only says what evidence makes a job map to a track. A job may map
+# to several tracks. Mapping is ANNOTATION-ONLY: it never changes a score,
+# tier, ranking or action.
+#
+# Rules read only: Work Profile labels (the job's own task statements), the
+# job title, role_family, and D2 domain placements (read-only). They never read
+# technical/domain alignment bands or scores, PTF, job_quality or role_type.
+#
+# Condition keys (all keys in one condition must hold):
+#   labels_any       at least one of these Work Profile labels
+#   labels_all       all of these labels
+#   labels_none      none of these labels
+#   label_dominates  {label, over: [...]} — label's evidence count > the sum over
+#                    the listed labels, and > 0
+#   domain           {terms, placements} — a D2 evidence item with one of the
+#                    terms at one of the placements
+#   title            regex on the job title
+#   not_title        regex that must NOT match the job title
+#   role_family_any  role_family values
+#   ds_titled        the title family is a Data-Scientist family
+#   work_context     regex that must match one of the job's work sentences
+#   label_evidence   {labels, matching?, not_matching?, not_as_list_item?} — ONE
+#                    evidence sentence of one of these labels must match
+#                    `matching` (not merely as an item of a comma list, when
+#                    not_as_list_item) and must not match `not_matching`
+#   any_of           list of conditions, at least one must hold
+# A track has a `context` (what makes it look like the track), an optional
+# `guard` (substantive evidence required on top — if context holds but guard
+# fails, a guard_failure is recorded and the track is NOT mapped), and
+# optional `excludes` (dropped when any listed track also mapped).
+
+version: transition_lens_v1
+
+tracks:
+  RISK_DS:
+    context:
+      labels_any: [APPLIED_MODELLING]
+      domain: {terms: [Risk, Credit Risk, Credit], placements: [own_work, defining]}
+
+  FRAUD_FINCRIME_DS:
+    context:
+      labels_any: [APPLIED_MODELLING]
+      domain: {terms: [Fraud, AML, Financial Crime], placements: [own_work, defining]}
+
+  CREDIT_RISK_DS:
+    context:
+      labels_any: [APPLIED_MODELLING]
+      domain: {terms: [Credit Risk, Credit], placements: [own_work, defining]}
+
+  PRODUCT_DS:
+    context:
+      any_of:
+        - title: '\bproduct\b'
+        # product DECISIONS and metrics — not collaboration mentions ("work with
+        # product teams"), product lines, or "user experience" in general.
+        - work_context: '\bproduct (?:analytics|decisions?|metrics|growth|innovation|concepts?|adoption|usage)\b|\buser (?:behaviou?r|engagement|insights|journeys?|funnels?|acquisition|growth|retention|base)\b|\bgrowth (?:strategy|teams?|initiatives|marketing)\b|\b(?:engagement|retention|conversion)\b[^.;]{0,30}\b(?:engagement|retention|conversion|churn)\b'
+    # Product context alone is NOT sufficient: substantive DS / analytical
+    # decision work (experimentation, statistical or predictive modelling,
+    # causal analysis, decision modelling, ML) must be evidenced in the work.
+    # Recommender / personalisation engineering alone is not product DS: it
+    # needs experimentation or optimisation, non-recommender modelling, or
+    # modelling alongside an explicit product-decision statement.
+    guard:
+      any_of:
+        - labels_any: [EXPERIMENTATION_DECISION, OPTIMISATION]
+        - label_evidence:
+            labels: [APPLIED_MODELLING]
+            not_matching: 'recommend|personali[sz]|ranking|retrieval|\bsearch\b|collaborative filtering|user profiling'
+        - labels_any: [APPLIED_MODELLING]
+          work_context: '\bproduct (?:decisions?|analytics|metrics|strategy)\b'
+    excludes: [ANALYTICS_HEAVY]
+
+  APPLIED_DS:
+    context:
+      labels_any: [APPLIED_MODELLING]
+    excludes: [MLOPS_PLATFORM]
+
+  DECISION_SCIENTIST:
+    context:
+      any_of:
+        - labels_any: [OPTIMISATION]
+        - title: '\bdecision scien'
+
+  EXPERIMENTATION_CAUSAL:
+    context:
+      labels_any: [EXPERIMENTATION_DECISION]
+
+  PRICING_FORECASTING:
+    context:
+      labels_any: [APPLIED_MODELLING, OPTIMISATION]
+      # Pricing / forecasting must be the subject of a modelling or
+      # optimisation work statement — the same sentence, not a term elsewhere
+      # in the posting, and not one item in a list of techniques.
+      any_of:
+        - title: '\bpric|\bforecast'
+        - label_evidence:
+            labels: [APPLIED_MODELLING, OPTIMISATION]
+            matching: '\bpric(?:e|es|ing)\b|elasticit\w*|\bdemand (?:forecast\w*|measurement|response|model\w*)|\bforecast\w*|revenue management|yield management|promotion (?:optimi[sz]ation|pricing|effectiveness)'
+            not_as_list_item: true
+
+  APPLIED_SCIENTIST:
+    context:
+      any_of:
+        - title: '\bapplied scientist'
+        - labels_all: [RESEARCH, APPLIED_MODELLING]
+
+  ML_SCIENTIST:
+    context:
+      any_of:
+        - title: '\b(?:ml|machine learning) scientist|\bresearch scientist'
+        - label_dominates: {label: RESEARCH, over: [APPLIED_MODELLING, ML_ENGINEERING]}
+
+  ML_ENGINEER:
+    context:
+      role_family_any: [ML Engineer]
+      not_title: '\bmlops\b|(?:ml|machine learning|ai|model) platform'
+    # An ML-Engineer-titled job whose evidenced work is platform / model
+    # operations is MLOPS_PLATFORM (the same boundary the title rule applies).
+    excludes: [MLOPS_PLATFORM]
+
+  MLOPS_PLATFORM:
+    context:
+      any_of:
+        - title: '\bmlops\b|(?:ml|machine learning|ai|model) platform'
+        # platform / model-operations work outweighs all model-building work
+        - label_dominates: {label: ML_PLATFORM, over: [APPLIED_MODELLING, ML_ENGINEERING, AI_APPLICATION_DEV]}
+
+  ANALYTICS_HEAVY:
+    context:
+      ds_titled: true
+      label_dominates: {label: REPORTING, over: [APPLIED_MODELLING, EXPERIMENTATION_DECISION, OPTIMISATION, ML_ENGINEERING]}
+
+  MIS_REPORTING:
+    context:
+      labels_any: [REPORTING]
+      labels_none: [APPLIED_MODELLING, EXPERIMENTATION_DECISION, OPTIMISATION, ML_ENGINEERING]
+
+  DATA_ANALYST:
+    context:
+      role_family_any: [Data Analyst]
+
+  BI_ANALYST:
+    context:
+      role_family_any: [BI Analyst]
